@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Dashboard Keuangan Carwash — Mode Demo</title>
+  <style>
+    /* ==========================================================================
+       1. TOKEN TEMA & MOTION SYSTEM (INSPIRASI APPLE DESIGN SYSTEM)
+       ========================================================================== */
+    :root {
+      /* Durasi & Kurva Animasi (Hanya Transform & Opacity) */
+      --dur-fast: 120ms;
+      --dur-base: 250ms;
+      --dur-slow: 450ms;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
+      /* Tipografi */
+      --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+      /* Palet Mode Terang (Kontras Teks >= 4.5:1) */
+      --bg-page: #F5F5F7;
+      --bg-card: #FFFFFF;
+      --bg-card-subtle: #F2F2F7;
+      --bg-card-translucent: rgba(255, 255, 255, 0.82);
+      --text-main: #1D1D1F;
+      --text-sec: #6E6E73;
+      --text-tertiary: #86868B;
+      --accent: #0066CC;
+      --accent-hover: #0055B3;
+      --accent-soft: rgba(0, 102, 204, 0.08);
+      --border-thin: rgba(0, 0, 0, 0.08);
+      --border-card: rgba(0, 0, 0, 0.06);
+
+      /* Status Semantik (Hanya untuk selisih & konfirmasi, selalu dengan teks/ikon) */
+      --positive: #1A7F37;
+      --positive-bg: rgba(26, 127, 55, 0.1);
+      --negative: #C5221F;
+      --negative-bg: rgba(197, 34, 31, 0.1);
+      --warning: #9A6700;
+      --warning-bg: rgba(154, 103, 0, 0.1);
+
+      /* Token Kotak Ikon Kartu & Judul (Mode Terang) */
+      --icon-in-bg: #E8F5EC;
+      --icon-in-fg: #1A7F37;
+      --icon-out-bg: #FCE8E7;
+      --icon-out-fg: #C5221F;
+      --icon-kasbon-bg: #F0F0F2;
+      --icon-kasbon-fg: var(--text-sec);
+      --icon-diff-bg: #E5F0FF;
+      --icon-diff-fg: #0066CC;
+      --icon-rekap-bg: #F0F0F2;
+      --icon-rekap-fg: var(--text-main);
+
+      /* Shape & Depth */
+      --radius-card: 20px;
+      --radius-control: 12px;
+      --radius-pill: 9999px;
+      --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+      --shadow-nav: 0 -4px 24px rgba(0, 0, 0, 0.05);
+      --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.12);
+
+      --tabbar-height: 64px;
+      --header-blur: blur(20px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-page: #000000;
+        --bg-card: #1C1C1E;
+        --bg-card-subtle: #2C2C2E;
+        --bg-card-translucent: rgba(28, 28, 30, 0.82);
+        --text-main: #F5F5F7;
+        --text-sec: #98989D;
+        --text-tertiary: #636366;
+        --accent: #2997FF;
+        --accent-hover: #54A9FF;
+        --accent-soft: rgba(41, 151, 255, 0.15);
+        --border-thin: rgba(255, 255, 255, 0.12);
+        --border-card: rgba(255, 255, 255, 0.08);
+
+        --positive: #30D158;
+        --positive-bg: rgba(48, 209, 88, 0.15);
+        --negative: #FF453A;
+        --negative-bg: rgba(255, 69, 58, 0.15);
+        --warning: #FFD60A;
+        --warning-bg: rgba(255, 214, 10, 0.15);
+
+        /* Token Kotak Ikon Kartu & Judul (Mode Gelap) */
+        --icon-in-bg: rgba(48, 209, 88, 0.15);
+        --icon-in-fg: #30D158;
+        --icon-out-bg: rgba(255, 69, 58, 0.15);
+        --icon-out-fg: #FF453A;
+        --icon-kasbon-bg: #2C2C2E;
+        --icon-kasbon-fg: var(--text-sec);
+        --icon-diff-bg: rgba(41, 151, 255, 0.15);
+        --icon-diff-fg: #2997FF;
+        --icon-rekap-bg: #2C2C2E;
+        --icon-rekap-fg: var(--text-main);
+
+        --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+        --shadow-nav: 0 -4px 24px rgba(0, 0, 0, 0.5);
+        --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    /* Fallback jika backdrop-filter tidak didukung */
+    @supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+      :root {
+        --bg-card-translucent: var(--bg-card);
+      }
+    }
+
+    /* Aksesibilitas: Pengurangan Gerak Sesuai Preferensi */
+    @media (prefers-reduced-motion: reduce) {
+      :root {
+        --dur-fast: 0ms;
+        --dur-base: 0ms;
+        --dur-slow: 0ms;
+      }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .anim-count {
+        transition: none !important;
+      }
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      font-size: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font-system);
+      font-size: 1rem;
+      line-height: 1.48;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 1rem; /* Mencegah auto-zoom Safari di layar HP */
+      color: inherit;
+      border: none;
+      background: none;
+    }
+
+    button {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    :focus-visible {
+      outline: 2.5px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* Utilitas Visibilitas Screen Reader */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* SVG Icon Style Helper */
+    .icon {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.75;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .icon-sm { width: 18px; height: 18px; }
+    .icon-lg { width: 28px; height: 28px; }
+
+    /* ==========================================================================
+       3. STRUKTUR UTAMA & LAYOUT RESPOMSIF
+       ========================================================================== */
+    .demo-ribbon {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-thin);
+      padding: calc(0.35rem + env(safe-area-inset-top, 0px)) 1rem 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-sec);
+    }
+
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    .app-viewport {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .content-area {
+      flex: 1;
+      width: 100%;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 1rem 1rem calc(var(--tabbar-height) + 2rem + env(safe-area-inset-bottom, 0px));
+      transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    }
+
+    /* ==========================================================================
+       4. NAVIGASI: TAB BAR BAWAH (HP) & SIDEBAR KIRI (DESKTOP >= 1024px)
+       ========================================================================== */
+    .main-navigation {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      background: var(--bg-card-translucent);
+      -webkit-backdrop-filter: var(--header-blur);
+      backdrop-filter: var(--header-blur);
+      border-top: 1px solid var(--border-thin);
+      box-shadow: var(--shadow-nav);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .nav-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      list-style: none;
+      position: relative;
+      margin: 0 auto;
+      max-width: 540px;
+    }
+
+    .nav-item {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .nav-tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 56px;
+      min-width: 44px;
+      padding: 0.35rem 0.2rem;
+      color: var(--text-sec);
+      font-size: 0.75rem;
+      font-weight: 500;
+      gap: 0.2rem;
+      transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav-tab-btn:active {
+      transform: scale(0.94);
+    }
+
+    .nav-tab-btn[aria-current="page"] {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Penonjolan Khusus Tombol "Catat" di Mobile */
+    .nav-tab-btn.catat-highlight .icon-wrap {
+      background: var(--accent);
+      color: #FFFFFF;
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+      transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast);
+      margin-top: -8px;
+    }
+
+    .nav-tab-btn.catat-highlight:active .icon-wrap {
+      transform: scale(0.92);
+    }
+
+    .desktop-sidebar-header {
+      display: none;
+    }
+
+    /* ==========================================================================
+       5. KOMPONEN UI UTAMA & CARD SYSTEM
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-subtle);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      position: relative;
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
+
+    .card:active {
+      transform: scale(0.995);
+    }
+
+    .card-hero {
+      background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-card-subtle) 100%);
+      border: 1px solid var(--border-thin);
+      padding: 1.5rem 1.25rem;
+    }
+
+    .card-header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      letter-spacing: -0.01em;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    /* Kotak Ikon 40x40px & 32x32px */
+    .icon-box-40 {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-box-in {
+      background-color: var(--icon-in-bg);
+      color: var(--icon-in-fg);
+    }
+
+    .icon-box-out {
+      background-color: var(--icon-out-bg);
+      color: var(--icon-out-fg);
+    }
+
+    .icon-box-kasbon {
+      background-color: var(--icon-kasbon-bg);
+      color: var(--icon-kasbon-fg);
+    }
+
+    .icon-box-diff {
+      background-color: var(--icon-diff-bg);
+      color: var(--icon-diff-fg);
+    }
+
+    .section-title-with-icon {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .icon-circle-32-catat {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #0066CC;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-box-32-rekap {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background-color: var(--icon-rekap-bg);
+      color: var(--icon-rekap-fg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Ilustrasi Kosong Maksimal 120px dengan Fade-in 250ms */
+    .empty-state-illustration {
+      width: 96px;
+      max-width: 120px;
+      height: 96px;
+      margin: 0 auto 0.75rem;
+      display: block;
+      color: var(--text-sec);
+      stroke: currentColor;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      animation: emptyFadeIn 250ms var(--ease-out) both;
+    }
+
+    @keyframes emptyFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .empty-state-illustration {
+        animation: none !important;
+      }
+    }
+
+    /* Angka Tabular (Anti Geter saat Animasi Count-Up) */
+    .num-hero {
+      font-size: clamp(2rem, 7vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      margin: 0.35rem 0 0.5rem;
+    }
+
+    .num-large {
+      font-size: clamp(1.4rem, 4.8vw, 1.95rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .num-medium {
+      font-size: clamp(1.15rem, 3.4vw, 1.35rem);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .tx-amount {
+      font-weight: 400; /* Wajib tidak tebal pada transaksi individual */
+      font-variant-numeric: tabular-nums;
+    }
+
+    .notice-non-laba {
+      margin-top: 0.85rem;
+      padding: 0.65rem 0.9rem;
+      background: var(--bg-card-subtle);
+      border-radius: var(--radius-control);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      text-align: center;
+      border: 1px solid var(--border-thin);
+    }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+    }
+
+    .tag-positive {
+      background: var(--positive-bg);
+      color: var(--positive);
+    }
+
+    .tag-negative {
+      background: var(--negative-bg);
+      color: var(--negative);
+    }
+
+    /* Slider / Selector Bulan Horizontal (Snap Smooth) */
+    .month-pills-scroller {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.35rem 0.2rem 0.75rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .month-pills-scroller::-webkit-scrollbar { display: none; }
+
+    .month-pill-btn {
+      flex: 0 0 auto;
+      scroll-snap-align: center;
+      padding: 0.6rem 1.15rem;
+      min-height: 44px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      transition: all var(--dur-fast) var(--ease-out);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .month-pill-btn[aria-selected="true"] {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(0, 102, 204, 0.35);
+    }
+
+    .month-pill-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Segmented Control dengan Sliding Pill */
+    .segmented-control {
+      position: relative;
+      display: flex;
+      background: var(--bg-card-subtle);
+      border-radius: var(--radius-control);
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .segmented-control::-webkit-scrollbar { display: none; }
+
+    .segmented-btn {
+      flex: 1 1 auto;
+      min-height: 40px;
+      min-width: 80px;
+      padding: 0.45rem 0.75rem;
+      border-radius: calc(var(--radius-control) - 3px);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      text-align: center;
+      white-space: nowrap;
+      transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast);
+      position: relative;
+      z-index: 2;
+    }
+
+    .segmented-btn[aria-selected="true"] {
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Rasio Bar Tipis CASH vs QRIS */
+    .ratio-bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-card-subtle);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      display: flex;
+      margin: 0.65rem 0 0.85rem;
+    }
+
+    .ratio-bar-fill {
+      height: 100%;
+      transition: width var(--dur-slow) var(--ease-out);
+    }
+    .ratio-cash { background-color: var(--accent); }
+    .ratio-qris { background-color: #5E5CE6; }
+
+    /* Tombol Interaktif */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      padding: 0.75rem 1.35rem;
+      border-radius: var(--radius-control);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast), background-color var(--dur-fast);
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-brand {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(0, 102, 204, 0.25);
+    }
+    .btn-brand:hover:not(:disabled) { background: var(--accent-hover); }
+
+    .btn-subtle {
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+      border: 1px solid var(--border-thin);
+    }
+
+    .btn-danger {
+      background: var(--negative-bg);
+      color: var(--negative);
+      border: 1px solid rgba(197, 34, 31, 0.2);
+    }
+
+    /* Grid Metrik Responsif */
+    .grid-duo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .grid-quad {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    /* ==========================================================================
+       6. GRAFIK SVG MANDIRI (BATANG & SPARKLINE)
+       ========================================================================== */
+    .chart-box {
+      width: 100%;
+      padding-top: 0.5rem;
+    }
+
+    .bar-chart-svg {
+      width: 100%;
+      height: 180px;
+      display: block;
+      overflow: visible;
+    }
+
+    .chart-bar-group {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .chart-bar-rect {
+      transform-origin: bottom;
+      transition: height var(--dur-slow) var(--ease-out), y var(--dur-slow) var(--ease-out), opacity var(--dur-fast);
+    }
+
+    .chart-bar-group:hover .chart-bar-rect,
+    .chart-bar-group:focus .chart-bar-rect {
+      opacity: 0.8;
+    }
+
+    .sparkline-svg {
+      width: 110px;
+      height: 38px;
+      display: block;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ==========================================================================
+       7. FORM TRANSAKSI DENGAN ROW SMOOTH TRANSITION
+       ========================================================================== */
+    .form-row-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-card);
+      padding: 1.15rem;
+      margin-bottom: 0.85rem;
+      box-shadow: var(--shadow-subtle);
+      transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    }
+
+    .form-field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-top: 0.65rem;
+    }
+
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+
+    .field-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-control);
+      border: 1.5px solid var(--border-thin);
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+      transition: border-color var(--dur-fast), background-color var(--dur-fast);
+    }
+
+    .field-input:focus {
+      border-color: var(--accent);
+      background: var(--bg-card);
+      outline: none;
+    }
+
+    .field-input.has-error {
+      border-color: var(--negative);
+      background: var(--negative-bg);
+    }
+
+    .row-inline-error {
+      color: var(--negative);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Animasi Centang Sukses SVG (Stroke Draw) */
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2.5;
+      stroke: var(--positive);
+      fill: none;
+      animation: drawCircle 500ms var(--ease-out) forwards;
+    }
+
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      stroke-width: 2.5;
+      stroke: var(--positive);
+      animation: drawCheck 400ms 200ms var(--ease-out) forwards;
+    }
+
+    @keyframes drawCircle {
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes drawCheck {
+      100% { stroke-dashoffset: 0; }
+    }
+
+    /* Spinner Animasi */
+    .spinner-ring {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spinRing 700ms linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spinRing {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Skeleton Loading Placeholder */
+    .skeleton-box {
+      background: linear-gradient(90deg, var(--bg-card-subtle) 25%, rgba(150,150,150,0.1) 50%, var(--bg-card-subtle) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Dialog / Bottom Sheet Modal */
+    .apple-sheet {
+      border: none;
+      border-radius: 24px 24px 0 0;
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: var(--shadow-elevated);
+      max-width: 600px;
+      width: 100%;
+      margin: auto auto 0 auto;
+      padding: 1.5rem;
+      transform: translateY(100%);
+      transition: transform var(--dur-slow) var(--ease-sheet);
+      outline: none;
+    }
+
+    .apple-sheet[open] {
+      transform: translateY(0);
+    }
+
+    .apple-sheet::backdrop {
+      background: rgba(0, 0, 0, 0.4);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      transition: opacity var(--dur-base) var(--ease-out);
+    }
+
+    .apple-sheet[open]::backdrop {
+      opacity: 1;
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 5px;
+      background: var(--border-thin);
+      border-radius: var(--radius-pill);
+      margin: -0.5rem auto 1rem;
+    }
+
+    /* Toast Notification */
+    .toast-pill {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: var(--text-main);
+      color: var(--bg-page);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-elevated);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+
+    .toast-pill.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ==========================================================================
+       8. BREAKPOINTS TABLET (>= 640px) & DESKTOP (>= 1024px)
+       ========================================================================== */
+    @media (min-width: 640px) {
+      .grid-duo {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .form-field-grid {
+        grid-template-columns: 2fr 1.5fr;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .app-viewport {
+        padding-left: 260px;
+      }
+
+      .main-navigation {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: auto;
+        width: 260px;
+        height: 100dvh;
+        border-top: none;
+        border-right: 1px solid var(--border-thin);
+        box-shadow: none;
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+
+      .desktop-sidebar-header {
+        display: block;
+        padding: 0.5rem 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border-thin);
+        margin-bottom: 1rem;
+      }
+
+      .nav-track {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        max-width: 100%;
+      }
+
+      .nav-tab-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.85rem;
+        min-height: 46px;
+        padding: 0.65rem 1rem;
+        border-radius: var(--radius-control);
+        font-size: 0.9375rem;
+      }
+
+      .nav-tab-btn[aria-current="page"] {
+        background: var(--accent-soft);
+      }
+
+      .nav-tab-btn.catat-highlight .icon-wrap {
+        margin-top: 0;
+        width: 28px;
+        height: 28px;
+      }
+
+      .content-area {
+        padding: 2.25rem 2.5rem 4rem;
+        max-width: 1120px;
+      }
+
+      .grid-duo {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .card-hero-desktop {
+        grid-column: span 3;
+      }
+
+      .grid-quad {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .form-field-grid {
+        grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr;
+      }
+
+      .apple-sheet {
+        border-radius: 24px;
+        margin: auto;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base);
+      }
+
+      .apple-sheet[open] {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ==========================================================================
+       9. PRINT STYLESHEET
+       ========================================================================== */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+      .demo-ribbon,
+      .main-navigation,
+      .no-print,
+      .btn-action,
+      .month-pills-scroller,
+      .segmented-control {
+        display: none !important;
+      }
+      .app-viewport {
+        padding-left: 0 !important;
+      }
+      .content-area {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .card {
+        border: 1px solid #CCCCCC !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+      .table-clean {
+        display: table !important;
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table-clean th, .table-clean td {
+        border: 1px solid #DDDDDD;
+        padding: 6px 8px;
+        font-size: 9pt;
+      }
+    }
+    /* OVERRIDE LAYOUT HP */
+@media (max-width: 639px) {
+  /* pasangan dua kolom jadi satu kolom: Catat (tanggal dan hari) */
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  .input-wrapper {
+    min-width: 0;
+  }
+  input[type="date"],
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  /* tab Rekap: 3 kolom, dua baris, tanpa geser samping */
+  .segmented-control {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+    gap: 4px;
+  }
+  .segmented-btn {
+    min-width: 0;
+    min-height: 44px;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.875rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <!-- SVG Sprite Master (24x24, Garis 1.75px, Round Caps/Joins, Bebas Emoji) -->
+  <svg style="display: none;" aria-hidden="true">
+    <defs>
+      <symbol id="icon-beranda" viewBox="0 0 24 24">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/>
+      </symbol>
+      <symbol id="icon-rekap" viewBox="0 0 24 24">
+        <path d="M18 20V10M12 20V4M6 20v-6"/>
+      </symbol>
+      <symbol id="icon-catat" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </symbol>
+      <symbol id="icon-cari" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </symbol>
+      <symbol id="icon-kategori" viewBox="0 0 24 24">
+        <path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/>
+      </symbol>
+      <symbol id="icon-bandingkan" viewBox="0 0 24 24">
+        <path d="M16 3h5v5M4 21L21 4M8 21H3v-5M21 16l-7.5-7.5M3 8l5 5"/>
+      </symbol>
+      <symbol id="icon-akumulatif" viewBox="0 0 24 24">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        <path d="M8 7h8M8 11h6"/>
+      </symbol>
+      <symbol id="icon-developer" viewBox="0 0 24 24">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.9 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </symbol>
+      <symbol id="icon-kalender" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <path d="M16 2v4M8 2v4M3 10h18"/>
+      </symbol>
+      <symbol id="icon-panah-naik" viewBox="0 0 24 24">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+      </symbol>
+      <symbol id="icon-panah-turun" viewBox="0 0 24 24">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </symbol>
+      <symbol id="icon-centang" viewBox="0 0 24 24">
+        <path d="M20 6L9 17l-5-5"/>
+      </symbol>
+      <symbol id="icon-peringatan" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </symbol>
+      <symbol id="icon-info" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 16v-4M12 8h.01"/>
+      </symbol>
+      <symbol id="icon-chevron-kiri" viewBox="0 0 24 24">
+        <path d="M15 18l-6-6 6-6"/>
+      </symbol>
+      <symbol id="icon-chevron-kanan" viewBox="0 0 24 24">
+        <path d="M9 18l6-6-6-6"/>
+      </symbol>
+      <symbol id="icon-tutup" viewBox="0 0 24 24">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </symbol>
+      <symbol id="icon-hapus" viewBox="0 0 24 24">
+        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </symbol>
+      <symbol id="icon-tunai" viewBox="0 0 24 24">
+        <rect x="2" y="6" width="20" height="12" rx="2"/>
+        <circle cx="12" cy="12" r="2.5"/>
+        <path d="M6 12h.01M18 12h.01"/>
+      </symbol>
+      <symbol id="icon-qris" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M14 14h3v3h-3zm4 4h3v3h-3zm-4 3h3v-3h-3z"/>
+      </symbol>
+      <symbol id="icon-kupon" viewBox="0 0 24 24">
+        <path d="M3 9a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2v6a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2a2 2 0 0 0-2-2V9z"/>
+      </symbol>
+      <symbol id="icon-belum-dibayar" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 6v6l4 2"/>
+      </symbol>
+      <symbol id="icon-kasbon" viewBox="0 0 24 24">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <path d="M16 10l-4 4-4-4"/>
+      </symbol>
+      <symbol id="icon-muat-ulang" viewBox="0 0 24 24">
+        <path d="M21.5 2v6h-6M2.5 22v-6h6"/>
+        <path d="M19.07 15.57A8 8 0 0 1 5.93 18.43L2.5 15M4.93 8.43A8 8 0 0 1 18.07 5.57L21.5 9"/>
+      </symbol>
+      <symbol id="icon-lainnya" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="1.5"/>
+        <circle cx="19" cy="12" r="1.5"/>
+        <circle cx="5" cy="12" r="1.5"/>
+      </symbol>
+      <symbol id="icon-dompet" viewBox="0 0 24 24">
+        <path d="M19 7V5a1 1 0 0 0-1-1H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2H5"/>
+        <path d="M21 12h-4a2 2 0 0 0 0 4h4"/>
+      </symbol>
+      <symbol id="icon-bar-tiga" viewBox="0 0 24 24">
+        <path d="M5 19v-5h3v5M10.5 19V6h3v13M16 19v-9h3v9M3 19h18"/>
+      </symbol>
+      <symbol id="icon-lembar" viewBox="0 0 24 24">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/>
+        <path d="M14 3v5h5M9 13h6M9 17h4"/>
+      </symbol>
+      <symbol id="ilustrasi-kosong" viewBox="0 0 24 24">
+        <rect x="3" y="5" width="18" height="16" rx="2"/>
+        <path d="M16 3v4M8 3v4M3 10h18M9 15h6"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Banner Wajib Mode Demo -->
+  <header class="demo-ribbon" role="status">
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <span class="demo-badge">MODE DEMO - data contoh</span>
+      <span id="label-last-updated" style="font-size:0.75rem;">Terakhir diperbarui --:-- WIB</span>
+    </div>
+    <button type="button" id="btn-force-reload" class="btn-action" style="min-height:32px; padding:0.25rem 0.6rem; font-size:0.8125rem; border-radius:var(--radius-pill); background:var(--bg-card-subtle);">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-muat-ulang"/></svg>
+      <span>Muat ulang</span>
+    </button>
+  </header>
+
+  <!-- Toast Notification -->
+  <div id="toast-bubble" class="toast-pill" role="status" aria-live="polite">
+    <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-centang"/></svg>
+    <span id="toast-text">Berhasil disimpan</span>
+  </div>
+
+  <div class="app-viewport">
+    <!-- Navigasi Utama Responsif: Maksimal 5 Item di Mobile -->
+    <nav class="main-navigation" aria-label="Menu Utama">
+      <div class="desktop-sidebar-header">
+        <h2 style="font-size:1.15rem; font-weight:700; letter-spacing:-0.02em;">Carwash Kas</h2>
+        <p style="font-size:0.8125rem; color:var(--text-sec);">Laporan & Catat Harian</p>
+      </div>
+
+      <ul class="nav-track">
+        <li class="nav-item">
+          <button type="button" class="nav-tab-btn" data-nav="beranda" aria-current="page">
+            <svg class="icon" aria-hidden="true"><use href="#icon-beranda"/></svg>
+            <span>Menu Utama</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-tab-btn" data-nav="rekap">
+            <svg class="icon" aria-hidden="true"><use href="#icon-rekap"/></svg>
+            <span>Rekap</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-tab-btn catat-highlight" data-nav="catat">
+            <span class="icon-wrap">
+              <svg class="icon" aria-hidden="true"><use href="#icon-catat"/></svg>
+            </span>
+            <span>Catat</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-tab-btn" data-nav="cari">
+            <svg class="icon" aria-hidden="true"><use href="#icon-cari"/></svg>
+            <span>Cari</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-tab-btn" id="btn-open-more" data-action="toggle-more">
+            <svg class="icon" aria-hidden="true"><use href="#icon-lainnya"/></svg>
+            <span>Lainnya</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Kontainer Layar Utama (Dinamis Diisi Script) -->
+    <main id="app-content-root" class="content-area" tabindex="-1"></main>
+  </div>
+
+  <!-- Bottom Sheet / Dialog untuk Menu Tambahan ("Lainnya") di Layar Sempit & Detail Transaksi -->
+  <dialog id="sheet-dialog" class="apple-sheet" aria-labelledby="sheet-title">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 id="sheet-title" style="font-size:1.15rem; font-weight:700;">Menu Tambahan</h3>
+      <button type="button" id="btn-close-sheet" style="padding:0.4rem; color:var(--text-sec);" aria-label="Tutup dialog">
+        <svg class="icon" aria-hidden="true"><use href="#icon-tutup"/></svg>
+      </button>
+    </div>
+    <div id="sheet-body-content"></div>
+  </dialog>
+
+  <script>
+    /* ==========================================================================
+       WAJIB DISALIN PERSIS DARI FILE PROTOTYPE (TIDAK BOLEH BERUBAH)
+       ========================================================================== */
+
+    function showLogin() {
+      // Dikosongkan secara sengaja untuk integrasi autentikasi pada tahap produksi.
+    }
+
+    const INCOME_COUPON_ALLOWED = ['CARWASH MEDIUM', 'CARWASH LARGE', 'MOTOR'];
+    const INCOME_NO_COUPON = ['DETAILING', 'PARFUM', 'VARIASI'];
+    const INCOME_CATEGORIES = [...INCOME_COUPON_ALLOWED, ...INCOME_NO_COUPON];
+    const EXPENSE_CATEGORIES = ['OPERASIONAL', 'TOKEN LISTRIK', 'KONSUMSI', 'BONUS'];
+    const KASBON_CATEGORY = 'KASBON';
+    const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES, KASBON_CATEGORY];
+
+    const VALID_METHODS_BY_CATEGORY = {
+      'CARWASH MEDIUM': ['CASH', 'QRIS', 'KUPON', 'BELUM DIBAYAR'],
+      'CARWASH LARGE': ['CASH', 'QRIS', 'KUPON', 'BELUM DIBAYAR'],
+      'MOTOR': ['CASH', 'QRIS', 'KUPON', 'BELUM DIBAYAR'],
+      'DETAILING': ['CASH', 'QRIS', 'BELUM DIBAYAR'],
+      'PARFUM': ['CASH', 'QRIS', 'BELUM DIBAYAR'],
+      'VARIASI': ['CASH', 'QRIS', 'BELUM DIBAYAR'],
+      'OPERASIONAL': ['CASH', 'QRIS'],
+      'TOKEN LISTRIK': ['CASH', 'QRIS'],
+      'KONSUMSI': ['CASH', 'QRIS'],
+      'BONUS': ['CASH', 'QRIS'],
+      'KASBON': ['CASH']
+    };
+
+    const MONTHS_AVAILABLE = [
+      { key: '05/2026', label: 'Mei 2026', month: 5, year: 2026 },
+      { key: '06/2026', label: 'Juni 2026', month: 6, year: 2026 },
+      { key: '07/2026', label: 'Juli 2026', month: 7, year: 2026 },
+      { key: '08/2026', label: 'Agustus 2026', month: 8, year: 2026 },
+      { key: '09/2026', label: 'September 2026', month: 9, year: 2026 },
+      { key: '10/2026', label: 'Oktober 2026', month: 10, year: 2026 }
+    ];
+
+    const HARI_INDONESIA = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+
+    function buildInitialDummyData() {
+      const rows = [];
+      let rowCounter = 2; // Baris 1 adalah header di Google Sheet
+
+      const monthlySeeds = [
+        { m: '05', y: '2026', baseCount: 24, mult: 1.0 },
+        { m: '06', y: '2026', baseCount: 25, mult: 1.05 },
+        { m: '07', y: '2026', baseCount: 26, mult: 0.95 },
+        { m: '08', y: '2026', baseCount: 27, mult: 1.1 },
+        { m: '09', y: '2026', baseCount: 26, mult: 1.08 },
+        { m: '10', y: '2026', baseCount: 28, mult: 1.18 }
+      ];
+
+      const sampleTemplates = [
+        { desc: 'INNOVA REBORN', cat: 'CARWASH MEDIUM', amt: 50000, method: 'CASH' },
+        { desc: 'AVANZA VELOZ', cat: 'CARWASH MEDIUM', amt: 50000, method: 'QRIS' },
+        { desc: 'HONDA BRIO', cat: 'CARWASH MEDIUM', amt: 45000, method: 'CASH' },
+        { desc: 'PAJERO SPORT', cat: 'CARWASH LARGE', amt: 65000, method: 'QRIS' },
+        { desc: 'FORTUNER VRZ', cat: 'CARWASH LARGE', amt: 65000, method: 'CASH' },
+        { desc: 'NMAX HITAM', cat: 'MOTOR', amt: 20000, method: 'CASH' },
+        { desc: 'VARIO 160', cat: 'MOTOR', amt: 20000, method: 'QRIS' },
+        { desc: 'INNOVA ZENIX', cat: 'CARWASH MEDIUM', amt: 0, method: 'KUPON' },
+        { desc: 'PAJERO PUTIH', cat: 'CARWASH LARGE', amt: 0, method: 'KUPON' },
+        { desc: 'PCX MERAH', cat: 'MOTOR', amt: 0, method: 'KUPON' },
+        { desc: 'XPANDER CROSS', cat: 'CARWASH MEDIUM', amt: 50000, method: 'BELUM DIBAYAR' },
+        { desc: 'CRV PRESTIGE', cat: 'DETAILING', amt: 350000, method: 'QRIS' },
+        { desc: 'ALPHARD HITAM', cat: 'DETAILING', amt: 450000, method: 'CASH' },
+        { desc: 'PARFUM KOPI BALI', cat: 'PARFUM', amt: 35000, method: 'CASH' },
+        { desc: 'PARFUM VANILLA', cat: 'PARFUM', amt: 35000, method: 'QRIS' },
+        { desc: 'WIPER BOSCH SEPASANG', cat: 'VARIASI', amt: 120000, method: 'CASH' },
+        { desc: 'COVER SETIR KULIT', cat: 'VARIASI', amt: 95000, method: 'BELUM DIBAYAR' },
+        { desc: 'BELI SHAMPOO SNOW WASH', cat: 'OPERASIONAL', amt: 140000, method: 'CASH' },
+        { desc: 'BELI KAIN MICROFIBER', cat: 'OPERASIONAL', amt: 75000, method: 'QRIS' },
+        { desc: 'ISI TOKEN LISTRIK POMPA', cat: 'TOKEN LISTRIK', amt: 200000, method: 'QRIS' },
+        { desc: 'KOPI DAN GORENGAN TIM', cat: 'KONSUMSI', amt: 45000, method: 'CASH' },
+        { desc: 'MAKAN SIANG JUMAT', cat: 'KONSUMSI', amt: 120000, method: 'CASH' },
+        { desc: 'BONUS CUCI RAMAI AKHIR PEKAN', cat: 'BONUS', amt: 150000, method: 'CASH' },
+        { desc: 'ANDI PINJAM HARIAN', cat: 'KASBON', amt: 50000, method: 'CASH' },
+        { desc: 'WAWAN KEPERLUAN SEKOLAH', cat: 'KASBON', amt: 75000, method: 'CASH' },
+        { desc: 'HRV SE', cat: 'CARWASH MEDIUM', amt: 50000, method: 'CASH' },
+        { desc: 'ERTIGA HYBRID', cat: 'CARWASH MEDIUM', amt: 50000, method: 'QRIS' },
+        { desc: 'LAND CRUISER', cat: 'CARWASH LARGE', amt: 75000, method: 'CASH' }
+      ];
+
+      monthlySeeds.forEach((seed, mIdx) => {
+        for (let i = 0; i < seed.baseCount; i++) {
+          // Sisipkan Baris Bermasalah #1: Tanggal tidak terbaca (di sekitar baris ke-19)
+          if (mIdx === 0 && i === 16) {
+            rows.push({
+              rowNumber: rowCounter++,
+              date: '32/13/2026', // Tanggal rusak
+              description: 'AVANZA SILVER',
+              category: 'CARWASH MEDIUM',
+              amount: 50000,
+              method: 'CASH'
+            });
+          }
+
+          // Sisipkan Baris Bermasalah #2: Nominal tidak terbaca (di bulan Agustus 2026)
+          if (mIdx === 3 && i === 12) {
+            rows.push({
+              rowNumber: rowCounter++,
+              date: '14/08/2026',
+              description: 'FORTUNER HITAM',
+              category: 'CARWASH LARGE',
+              amount: 'ENAM PULUH LIMA RIBU', // Nominal rusak -> dihitung Rp 0
+              method: 'CASH'
+            });
+          }
+
+          const tpl = sampleTemplates[(i + mIdx * 3) % sampleTemplates.length];
+          const dayNum = ((i % 25) + 1).toString().padStart(2, '0');
+          const dateStr = `${dayNum}/${seed.m}/${seed.y}`;
+
+          let finalAmt = tpl.amt;
+          if (tpl.method !== 'KUPON' && finalAmt > 0) {
+            // Variasi realistis antarbulan
+            const variation = ((i % 3) === 0 && tpl.cat === 'DETAILING') ? 50000 * mIdx : 0;
+            finalAmt = tpl.amt + variation;
+          }
+
+          rows.push({
+            rowNumber: rowCounter++,
+            date: dateStr,
+            description: tpl.desc,
+            category: tpl.cat,
+            amount: finalAmt,
+            method: tpl.method
+          });
+        }
+      });
+
+      return rows;
+    }
+
+    const _memoryStore = {
+      transactions: buildInitialDummyData()
+    };
+
+    const api = {
+      /**
+       * Mengambil seluruh baris transaksi dari sumber data (Google Sheets via n8n).
+       * KONTRAK JSON YANG DIHARAPKAN (GET Response):
+       * { "status": "ok", "data": [ { "rowNumber": 2, "date": "06/05/2026", "description": "INNOVA", "category": "CARWASH MEDIUM", "amount": 50000, "method": "CASH" } ] }
+       */
+      async getTransactions() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('gagal') === '1') {
+          throw new Error('Simulasi kegagalan koneksi API (?gagal=1 aktif)');
+        }
+        await new Promise(resolve => setTimeout(resolve, 450));
+        return _memoryStore.transactions.map(item => ({ ...item }));
+      },
+
+      /**
+       * Mengirim satu pengajuan transaksi harian (maksimal 30 baris) ke n8n.
+       * KONTRAK JSON YANG DIHARAPKAN (POST Request Payload):
+       * { "date": "25/10/2026", "dayName": "MINGGU", "legacyText": "...", "items": [ { "txNumber": 1, "description": "INNOVA", "category": "CARWASH MEDIUM", "amount": 50000, "method": "CASH" } ] }
+       */
+      async submitBatch(payload) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('gagal') === '1') {
+          throw new Error('Simulasi kegagalan simpan batch API (?gagal=1 aktif)');
+        }
+        await new Promise(resolve => setTimeout(resolve, 550));
+        const maxRow = _memoryStore.transactions.reduce((max, r) => Math.max(max, r.rowNumber), 1);
+        let nextRow = maxRow + 1;
+
+        payload.items.forEach(item => {
+          _memoryStore.transactions.push({
+            rowNumber: nextRow++,
+            date: payload.date,
+            description: item.description.toUpperCase(),
+            category: item.category,
+            amount: Number(item.amount),
+            method: item.method
+          });
+        });
+
+        return {
+          status: 'ok',
+          insertedCount: payload.items.length,
+          startRowNumber: maxRow + 1
+        };
+      }
+    };
+
+    const rupiahFormatter = new Intl.NumberFormat('id-ID');
+
+    function formatRp(value) {
+      const num = Number(value) || 0;
+      if (num < 0) {
+        return `-Rp ${rupiahFormatter.format(Math.abs(Math.round(num)))}`;
+      }
+      return `Rp ${rupiahFormatter.format(Math.round(num))}`;
+    }
+
+    function formatDotNumber(value) {
+      const num = Number(value) || 0;
+      return rupiahFormatter.format(Math.round(Math.abs(num)));
+    }
+
+    function parseDateDDMMYYYY(str) {
+      if (typeof str !== 'string') return null;
+      const trimmed = str.trim();
+      const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+      if (!match) return null;
+
+      const day = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10);
+      const year = parseInt(match[3], 10);
+
+      if (month < 1 || month > 12 || day < 1 || day > 31 || year < 2000 || year > 2100) {
+        return null;
+      }
+
+      const d = new Date(year, month - 1, day);
+      if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {
+        return null;
+      }
+
+      return {
+        day,
+        month,
+        year,
+        timestamp: d.getTime(),
+        dayName: HARI_INDONESIA[d.getDay()],
+        keyMMYYYY: `${String(month).padStart(2, '0')}/${year}`,
+        shortYear: String(year).slice(-2),
+        formatted: `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
+      };
+    }
+
+    function convertISOToDDMMYYYY(isoStr) {
+      if (!isoStr || typeof isoStr !== 'string') return '';
+      const parts = isoStr.split('-');
+      if (parts.length !== 3) return '';
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function convertDDMMYYYYToISO(ddmmyyyy) {
+      const parsed = parseDateDDMMYYYY(ddmmyyyy);
+      if (!parsed) return '';
+      return `${parsed.year}-${String(parsed.month).padStart(2, '0')}-${String(parsed.day).padStart(2, '0')}`;
+    }
+
+    function getTodayWIB() {
+      try {
+        const parts = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Jakarta',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }).formatToParts(new Date());
+        const d = parts.find(p => p.type === 'day').value;
+        const m = parts.find(p => p.type === 'month').value;
+        const y = parts.find(p => p.type === 'year').value;
+        return `${d}/${m}/${y}`;
+      } catch (e) {
+        return '25/10/2026';
+      }
+    }
+
+    function getCurrentWIBHour() {
+      try {
+        const hourStr = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Jakarta',
+          hour: '2-digit',
+          hour12: false
+        }).format(new Date());
+        return parseInt(hourStr, 10);
+      } catch (e) {
+        return 12;
+      }
+    }
+
+    function inspectAllTransactions(rawRows) {
+      const validDateRows = [];
+      const issues = [];
+
+      rawRows.forEach(row => {
+        const parsedDate = parseDateDDMMYYYY(row.date);
+        const rawAmt = row.amount;
+        const isAmountValidNumber = typeof rawAmt === 'number' && !Number.isNaN(rawAmt) && rawAmt >= 0;
+
+        if (!parsedDate) {
+          issues.push({
+            rowNumber: row.rowNumber,
+            reason: `Tanggal tidak terbaca ("${row.date}")`,
+            raw: row
+          });
+          return;
+        }
+
+        let safeAmount = 0;
+        let hasAmountIssue = false;
+        if (!isAmountValidNumber) {
+          hasAmountIssue = true;
+          safeAmount = 0;
+          issues.push({
+            rowNumber: row.rowNumber,
+            reason: `Nominal tidak terbaca ("${rawAmt}"), dihitung Rp 0`,
+            raw: row
+          });
+        } else {
+          safeAmount = rawAmt;
+        }
+
+        validDateRows.push({
+          ...row,
+          parsedDate,
+          safeAmount,
+          hasAmountIssue
+        });
+      });
+
+      return {
+        validDateRows,
+        issues
+      };
+    }
+
+    function calculateMetrics(rows) {
+      let uangMasukCash = 0;
+      let uangMasukQris = 0;
+      let uangKeluar = 0;
+      let uangKeluarCash = 0;
+      let uangKeluarQris = 0;
+      let kasbonTotal = 0;
+      let kasbonCount = 0;
+      let kuponCount = 0;
+      let belumDibayarCount = 0;
+      let totalTransaksi = rows.length;
+
+      const incomeByCategory = {};
+      INCOME_CATEGORIES.forEach(cat => {
+        incomeByCategory[cat] = {
+          count: 0,
+          uangMasuk: 0,
+          cash: 0,
+          qris: 0,
+          kuponCount: 0,
+          belumDibayarCount: 0
+        };
+      });
+
+      const expenseByCategory = {};
+      EXPENSE_CATEGORIES.forEach(cat => {
+        expenseByCategory[cat] = {
+          count: 0,
+          total: 0,
+          cash: 0,
+          qris: 0,
+          byDescription: {}
+        };
+      });
+
+      const kasbonRows = [];
+
+      rows.forEach(r => {
+        const cat = r.category;
+        const method = r.method;
+        const amt = Number(r.safeAmount !== undefined ? r.safeAmount : r.amount) || 0;
+
+        if (INCOME_CATEGORIES.includes(cat)) {
+          const bucket = incomeByCategory[cat];
+          bucket.count += 1;
+
+          if (method === 'CASH') {
+            uangMasukCash += amt;
+            bucket.uangMasuk += amt;
+            bucket.cash += amt;
+          } else if (method === 'QRIS') {
+            uangMasukQris += amt;
+            bucket.uangMasuk += amt;
+            bucket.qris += amt;
+          } else if (method === 'KUPON') {
+            kuponCount += 1;
+            bucket.kuponCount += 1;
+          } else if (method === 'BELUM DIBAYAR') {
+            belumDibayarCount += 1;
+            bucket.belumDibayarCount += 1;
+          }
+        } else if (EXPENSE_CATEGORIES.includes(cat)) {
+          uangKeluar += amt;
+          if (method === 'CASH') uangKeluarCash += amt;
+          if (method === 'QRIS') uangKeluarQris += amt;
+
+          const expBucket = expenseByCategory[cat];
+          expBucket.count += 1;
+          expBucket.total += amt;
+          if (method === 'CASH') expBucket.cash += amt;
+          if (method === 'QRIS') expBucket.qris += amt;
+
+          const descKey = r.description || 'TANPA DESKRIPSI';
+          if (!expBucket.byDescription[descKey]) {
+            expBucket.byDescription[descKey] = { count: 0, total: 0 };
+          }
+          expBucket.byDescription[descKey].count += 1;
+          expBucket.byDescription[descKey].total += amt;
+        } else if (cat === KASBON_CATEGORY) {
+          kasbonCount += 1;
+          kasbonTotal += amt;
+          kasbonRows.push(r);
+        }
+      });
+
+      const uangMasuk = uangMasukCash + uangMasukQris;
+      const selisihKasOperasional = uangMasuk - uangKeluar;
+
+      return {
+        uangMasuk,
+        uangMasukCash,
+        uangMasukQris,
+        uangKeluar,
+        uangKeluarCash,
+        uangKeluarQris,
+        selisihKasOperasional,
+        totalTransaksi,
+        kasbonTotal,
+        kasbonCount,
+        kasbonRows,
+        kuponCount,
+        belumDibayarCount,
+        incomeByCategory,
+        expenseByCategory
+      };
+    }
+
+    function filterByMonth(validRows, monthKey) {
+      return validRows.filter(r => r.parsedDate.keyMMYYYY === monthKey);
+    }
+
+    function filterByDateRange(validRows, startDDMMYYYY, endDDMMYYYY) {
+      const startParsed = startDDMMYYYY ? parseDateDDMMYYYY(startDDMMYYYY) : null;
+      const endParsed = endDDMMYYYY ? parseDateDDMMYYYY(endDDMMYYYY) : null;
+
+      return validRows.filter(r => {
+        const ts = r.parsedDate.timestamp;
+        if (startParsed && ts < startParsed.timestamp) return false;
+        if (endParsed && ts > endParsed.timestamp) return false;
+        return true;
+      });
+    }
+
+    function parseFlexibleRupiahInput(rawText) {
+      if (typeof rawText === 'number') return rawText;
+      if (!rawText || typeof rawText !== 'string') return NaN;
+      const trimmed = rawText.trim();
+      if (trimmed === '') return NaN;
+      if (trimmed.includes('-')) return -1;
+
+      const cleaned = trimmed.replace(/rp/gi, '').replace(/\./g, '').replace(/\s+/g, '');
+      if (!/^\d+$/.test(cleaned)) return NaN;
+      return parseInt(cleaned, 10);
+    }
+
+    function buildLegacyFormatPreview(dateDDMMYYYY, items) {
+      const parsed = parseDateDDMMYYYY(dateDDMMYYYY) || parseDateDDMMYYYY(getTodayWIB());
+      const header = `${parsed.dayName} ${String(parsed.day).padStart(2, '0')}/${String(parsed.month).padStart(2, '0')}/${parsed.shortYear}`;
+      const lines = items.map((item, idx) => {
+        const num = idx + 1;
+        const desc = item.description.trim().toUpperCase();
+        const amtDot = formatDotNumber(item.amount);
+        return `${num}. ${desc}, ${item.category}, RP ${amtDot}, ${item.method}`;
+      });
+      return [header, ...lines].join('\n');
+    }
+
+    function validateCatatForm() {
+      const errors = [];
+      const parsedDate = parseDateDDMMYYYY(state.formDate);
+      if (!parsedDate) {
+        errors.push('Tanggal pengajuan tidak valid. Pilih tanggal yang benar, contoh: 25/10/2026.');
+      }
+
+      if (state.formRows.length === 0) {
+        errors.push('Minimal harus ada 1 baris transaksi. Contoh: Deskripsi INNOVA, Kategori CARWASH MEDIUM, Nominal Rp 50.000, Metode CASH.');
+      }
+
+      if (state.formRows.length > 30) {
+        errors.push(`Jumlah transaksi melebihi batas maksimal (saat ini ${state.formRows.length} baris). Maksimal 30 transaksi per pengajuan, contoh: kirim 30 baris terlebih dahulu.`);
+      }
+
+      const seenNumbers = new Set();
+
+      state.formRows.forEach((row, idx) => {
+        const rowNum = idx + 1;
+        if (seenNumbers.has(rowNum)) {
+          errors.push(`Baris #${rowNum}: Nomor transaksi duplikat. Gunakan nomor urut unik, contoh: 1, 2, 3.`);
+        }
+        seenNumbers.add(rowNum);
+
+        const desc = (row.description || '').trim();
+        if (!desc) {
+          errors.push(`Baris #${rowNum}: Deskripsi masih kosong. Isi nama kendaraan atau keterangan, contoh: INNOVA REBORN atau BELI SHAMPOO.`);
+        } else if (desc.includes(',')) {
+          errors.push(`Baris #${rowNum}: Deskripsi tidak boleh memuat tanda koma (,) karena merusak pemisah data. Contoh yang benar: INNOVA HITAM B 1234 CD (tanpa koma).`);
+        }
+
+        const validMethods = VALID_METHODS_BY_CATEGORY[row.category] || [];
+        if (!validMethods.includes(row.method)) {
+          errors.push(`Baris #${rowNum}: Metode "${row.method}" tidak diizinkan untuk kategori "${row.category}". Contoh yang benar untuk ${row.category}: pilih ${validMethods.join(' atau ')}.`);
+        }
+
+        if (row.method === 'KUPON') {
+          const parsedAmt = row.amountRaw === '' ? 0 : parseFlexibleRupiahInput(row.amountRaw);
+          if (parsedAmt !== 0) {
+            errors.push(`Baris #${rowNum}: Metode KUPON wajib bernilai Rp 0. Contoh yang benar: isi nominal 0.`);
+          }
+        } else {
+          const rawStr = String(row.amountRaw ?? '').trim();
+          if (rawStr === '') {
+            errors.push(`Baris #${rowNum}: Nominal belum diisi. Masukkan angka nominal, contoh: 50000 atau RP 50.000.`);
+          } else if (rawStr.includes('-')) {
+            errors.push(`Baris #${rowNum}: Nominal tidak boleh bernilai negatif. Masukkan angka positif, contoh: Rp 50.000.`);
+          } else {
+            const parsedAmt = parseFlexibleRupiahInput(rawStr);
+            if (Number.isNaN(parsedAmt) || parsedAmt < 0) {
+              errors.push(`Baris #${rowNum}: Format nominal "${rawStr}" tidak terbaca. Masukkan angka saja atau tempelan yang benar, contoh: 50000 atau RP 50.000.`);
+            }
+          }
+        }
+      });
+
+      return errors;
+    }
+
+    /* ==========================================================================
+       STATE APLIKASI TERPUSAT
+       ========================================================================== */
+    const state = {
+      screen: 'beranda', // 'beranda' | 'rekap' | 'catat' | 'cari' | 'kategori' | 'bandingkan' | 'akumulatif' | 'developer'
+      selectedMonth: '10/2026',
+      rekapTab: 'ringkasan', // 'ringkasan' | 'pemasukan' | 'pengeluaran' | 'kasbon' | 'semua'
+      rekapPage: 1,
+
+      akumulatifMode: 'semua',
+      akumulatifStart: '01/05/2026',
+      akumulatifEnd: '25/10/2026',
+
+      searchKeyword: '',
+      searchStart: '',
+      searchEnd: '',
+      searchError: '',
+      searchPage: 1,
+
+      kategoriSelected: 'SEMUA',
+      kategoriStart: '',
+      kategoriEnd: '',
+
+      compareMonthA: '09/2026',
+      compareMonthB: '10/2026',
+
+      formDate: getTodayWIB(),
+      formRows: [
+        { id: 1, description: '', category: 'CARWASH MEDIUM', amountRaw: '', amountFormatted: '', method: 'CASH' }
+      ],
+      formNextId: 2,
+      formErrors: [],
+      formStep: 'input',
+      formSubmitting: false,
+      formSuccessMessage: '',
+
+      devUrgency: 'Biasa',
+      devMessage: '',
+      devError: '',
+      devReply: '',
+      devSimulateHourMode: 'auto',
+
+      isLoading: false,
+      apiError: null,
+      lastUpdatedTime: '--:--'
+    };
+
+    let cachedRawTransactions = [];
+    let cachedInspection = { validDateRows: [], issues: [] };
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(msg) {
+      const bubble = document.getElementById('toast-bubble');
+      const text = document.getElementById('toast-text');
+      if (bubble && text) {
+        text.textContent = msg;
+        bubble.classList.add('visible');
+        setTimeout(() => bubble.classList.remove('visible'), 3200);
+      }
+    }
+
+    async function loadData() {
+      state.isLoading = true;
+      state.apiError = null;
+      renderAppView();
+
+      try {
+        cachedRawTransactions = await api.getTransactions();
+        cachedInspection = inspectAllTransactions(cachedRawTransactions);
+        const now = new Date();
+        state.lastUpdatedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('label-last-updated').textContent = `Terakhir diperbarui ${state.lastUpdatedTime} WIB`;
+      } catch (err) {
+        state.apiError = err.message || 'Gagal terhubung dengan server data.';
+      } finally {
+        state.isLoading = false;
+        renderAppView(true);
+      }
+    }
+
+    /* ==========================================================================
+       ANIMASI COUNT-UP PERSIS NILAI AKHIR (600 - 800 ms)
+       ========================================================================== */
+    function runCountUpAnimations() {
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const elements = document.querySelectorAll('[data-count-value]');
+
+      elements.forEach(el => {
+        const target = Number(el.getAttribute('data-count-value')) || 0;
+        const isRupiah = el.getAttribute('data-count-type') === 'rp';
+
+        if (isReduced) {
+          el.textContent = isRupiah ? formatRp(target) : target;
+          return;
+        }
+
+        const duration = 650;
+        const startTime = performance.now();
+
+        function tick(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(1, elapsed / duration);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(target * easeOut);
+
+          el.textContent = isRupiah ? formatRp(current) : current;
+
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            el.textContent = isRupiah ? formatRp(target) : target;
+          }
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    /* ==========================================================================
+       GRAFIK BATANG SVG MANDIRI & SPARKLINE 6 BULAN
+       ========================================================================== */
+    function generateSparklineSVG(values) {
+      if (!values || values.length < 2) return '';
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = (max - min) || 1;
+      const w = 110, h = 34, pad = 4;
+
+      const points = values.map((v, i) => {
+        const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+        const y = (h - pad) - ((v - min) / range) * (h - pad * 2);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+
+      return `
+        <svg class="sparkline-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+          <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="2.5" />
+        </svg>
+      `;
+    }
+
+    function renderComparisonBarChart() {
+      const summaryList = MONTHS_AVAILABLE.map(m => {
+        const r = filterByMonth(cachedInspection.validDateRows, m.key);
+        const met = calculateMetrics(r);
+        return {
+          key: m.key,
+          label: m.label.split(' ')[0],
+          in: met.uangMasuk,
+          out: met.uangKeluar
+        };
+      });
+
+      const maxVal = Math.max(1, ...summaryList.map(s => Math.max(s.in, s.out)));
+      const chartHeight = 120;
+      const colWidth = 44;
+      const gap = 12;
+      const totalWidth = summaryList.length * (colWidth + gap);
+
+      const columnsHtml = summaryList.map((s, idx) => {
+        const inH = Math.max(3, (s.in / maxVal) * chartHeight);
+        const outH = Math.max(3, (s.out / maxVal) * chartHeight);
+        const x = idx * (colWidth + gap);
+        const isSelected = s.key === state.selectedMonth;
+
+        return `
+          <g class="chart-bar-group" data-select-month="${s.key}" tabindex="0" role="button" aria-label="Bulan ${s.label}: Uang Masuk ${formatRp(s.in)}, Uang Keluar ${formatRp(s.out)}">
+            <!-- Batang Masuk -->
+            <rect x="${x}" y="${chartHeight - inH}" width="18" height="${inH}" rx="3" fill="var(--accent)" class="chart-bar-rect" />
+            <!-- Batang Keluar -->
+            <rect x="${x + 20}" y="${chartHeight - outH}" width="18" height="${outH}" rx="3" fill="#8E8E93" class="chart-bar-rect" />
+            <text x="${x + 19}" y="${chartHeight + 18}" text-anchor="middle" font-size="11" font-weight="${isSelected ? '700' : '500'}" fill="${isSelected ? 'var(--accent)' : 'var(--text-sec)'}">
+              ${s.label}
+            </text>
+          </g>
+        `;
+      }).join('');
+
+      return `
+        <div class="card" style="margin-top:1.25rem;">
+          <div class="card-header-flex">
+            <div>
+              <div class="card-label">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-rekap"/></svg>
+                <span>Tren 6 Bulan Terakhir</span>
+              </div>
+              <p style="font-size:0.8125rem; color:var(--text-sec);">Ketuk batang untuk memilih periode bulan</p>
+            </div>
+            <div style="display:flex; gap:0.75rem; font-size:0.8125rem;">
+              <span style="display:inline-flex; align-items:center; gap:0.3rem;">
+                <span style="width:10px; height:10px; background:var(--accent); border-radius:2px;"></span> Masuk
+              </span>
+              <span style="display:inline-flex; align-items:center; gap:0.3rem;">
+                <span style="width:10px; height:10px; background:#8E8E93; border-radius:2px;"></span> Keluar
+              </span>
+            </div>
+          </div>
+          <div class="chart-box" style="overflow-x:auto;">
+            <svg class="bar-chart-svg" viewBox="0 0 ${totalWidth} 145" role="img" aria-label="Grafik uang masuk dan keluar 6 bulan terakhir">
+              ${columnsHtml}
+            </svg>
+          </div>
+          <div class="sr-only">
+            ${summaryList.map(s => `${s.label}: Masuk ${formatRp(s.in)}, Keluar ${formatRp(s.out)}`).join('. ')}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       SUB-KOMPONEN STANDAR
+       ========================================================================== */
+    function renderPillsMonthScroller(selectedKey) {
+      return `
+        <div class="month-pills-scroller no-print" role="tablist" aria-label="Pilih Periode Bulan">
+          ${MONTHS_AVAILABLE.map(m => `
+            <button
+              type="button"
+              class="month-pill-btn"
+              role="tab"
+              data-pick-month="${m.key}"
+              aria-selected="${m.key === selectedKey}"
+            >
+              ${m.label}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderQualityWarning() {
+      const issues = cachedInspection.issues;
+      if (!issues || issues.length === 0) return '';
+
+      const sample = issues.slice(0, 3).map(i => `Baris #${i.rowNumber} (${escapeHtml(i.reason)})`).join('; ');
+      return `
+        <div class="card" style="background:var(--warning-bg); border-color:var(--warning); margin-bottom:1.25rem;">
+          <div class="card-label" style="color:var(--warning);">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-peringatan"/></svg>
+            <strong>DATA PERLU DICEK DI SHEET</strong>
+          </div>
+          <p style="font-size:0.875rem; margin-top:0.35rem;">
+            Ditemukan <strong>${issues.length} catatan bermasalah</strong> di spreadsheet. Contoh: ${sample}. Baris tanggal tidak valid tidak dihitung di bulan mana pun, dan baris nominal teks dihitung Rp 0.
+          </p>
+        </div>
+      `;
+    }
+
+    function renderStandardSummaryHero(metrics) {
+      const selisih = metrics.selisihKasOperasional;
+      const isPositive = selisih > 0;
+      const isZero = selisih === 0;
+
+      const diffTagClass = isPositive ? 'tag-positive' : (isZero ? '' : 'tag-negative');
+      const diffIcon = isPositive ? '#icon-panah-naik' : (isZero ? '#icon-info' : '#icon-panah-turun');
+      const diffText = isPositive ? 'Positif' : (isZero ? 'Impas' : 'Negatif');
+
+      const cashPercent = metrics.uangMasuk > 0 ? (metrics.uangMasukCash / metrics.uangMasuk) * 100 : 0;
+      const qrisPercent = metrics.uangMasuk > 0 ? (metrics.uangMasukQris / metrics.uangMasuk) * 100 : 0;
+
+      // Ambil nilai 6 bulan untuk sparkline
+      const sparklineData = MONTHS_AVAILABLE.map(m => {
+        const rows = filterByMonth(cachedInspection.validDateRows, m.key);
+        return calculateMetrics(rows).selisihKasOperasional;
+      });
+
+      return `
+        <!-- Kartu Paling Menonjol: Selisih Kas Operasional -->
+        <div class="card card-hero card-hero-desktop">
+          <div class="card-header-flex">
+            <div class="card-label">
+              <span class="icon-box-40 icon-box-diff" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-bar-tiga"/></svg>
+              </span>
+              <span>Selisih Kas Operasional</span>
+            </div>
+            ${generateSparklineSVG(sparklineData)}
+          </div>
+          <div class="num-hero" data-count-value="${selisih}" data-count-type="rp" aria-label="${formatRp(selisih)}">
+            ${formatRp(selisih)}
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <span class="tag-chip ${diffTagClass}">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="${diffIcon}"/></svg>
+              <span>${diffText}</span>
+            </span>
+            <span style="font-size:0.8125rem; color:var(--text-sec);">${metrics.totalTransaksi} total baris transaksi</span>
+          </div>
+          <div class="notice-non-laba">Selisih kas operasional bukan laba</div>
+        </div>
+
+        <div class="grid-duo">
+          <!-- Uang Masuk -->
+          <div class="card">
+            <div class="card-header-flex">
+              <div class="card-label">
+                <span class="icon-box-40 icon-box-in" aria-hidden="true">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-panah-naik"/></svg>
+                </span>
+                <span>Uang Masuk</span>
+              </div>
+            </div>
+            <div class="num-large" data-count-value="${metrics.uangMasuk}" data-count-type="rp">
+              ${formatRp(metrics.uangMasuk)}
+            </div>
+
+            <!-- Bar Rasio CASH vs QRIS -->
+            <div class="ratio-bar-track" title="CASH ${cashPercent.toFixed(0)}% vs QRIS ${qrisPercent.toFixed(0)}%">
+              <div class="ratio-bar-fill ratio-cash" style="width: ${cashPercent}%;"></div>
+              <div class="ratio-bar-fill ratio-qris" style="width: ${qrisPercent}%;"></div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; font-size:0.875rem; color:var(--text-sec);">
+              <span>CASH: <strong>${formatRp(metrics.uangMasukCash)}</strong></span>
+              <span>QRIS: <strong>${formatRp(metrics.uangMasukQris)}</strong></span>
+            </div>
+          </div>
+
+          <!-- Uang Keluar -->
+          <div class="card">
+            <div class="card-header-flex">
+              <div class="card-label">
+                <span class="icon-box-40 icon-box-out" aria-hidden="true">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-panah-turun"/></svg>
+                </span>
+                <span>Uang Keluar</span>
+              </div>
+            </div>
+            <div class="num-large" data-count-value="${metrics.uangKeluar}" data-count-type="rp">
+              ${formatRp(metrics.uangKeluar)}
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.875rem; color:var(--text-sec); margin-top:1.45rem;">
+              <span>CASH: <strong>${formatRp(metrics.uangKeluarCash)}</strong></span>
+              <span>QRIS: <strong>${formatRp(metrics.uangKeluarQris)}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indikator Pelengkap -->
+        <div class="grid-quad">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-label" style="font-size:0.8125rem;">Jumlah Transaksi</div>
+            <div class="num-medium" style="margin:0.25rem 0;">${metrics.totalTransaksi}</div>
+            <p style="font-size:0.75rem; color:var(--text-sec);">Baris terdata</p>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-label" style="font-size:0.8125rem;">
+              <span class="icon-box-40 icon-box-kasbon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-dompet"/></svg>
+              </span>
+              <span>Kasbon</span>
+            </div>
+            <div class="num-medium" style="margin:0.25rem 0;">${formatRp(metrics.kasbonTotal)}</div>
+            <p style="font-size:0.75rem; color:var(--text-sec);">${metrics.kasbonCount} baris (terpisah)</p>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-label" style="font-size:0.8125rem;">Kupon</div>
+            <div class="num-medium" style="margin:0.25rem 0;">${metrics.kuponCount}</div>
+            <p style="font-size:0.75rem; color:var(--text-sec);">Nilai Rp 0</p>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-label" style="font-size:0.8125rem;">Belum Dibayar</div>
+            <div class="num-medium" style="margin:0.25rem 0;">${metrics.belumDibayarCount}</div>
+            <p style="font-size:0.75rem; color:var(--text-sec);">Uang masuk Rp 0</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTransactionListCards(rows, currentPage, actionPrefix) {
+      const pageSize = 7;
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      const safePage = Math.min(Math.max(1, currentPage), totalPages);
+      const start = (safePage - 1) * pageSize;
+      const slice = rows.slice(start, start + pageSize);
+
+      if (rows.length === 0) {
+        return `
+          <div class="card" style="text-align:center; padding:2rem 1rem;">
+            <svg class="empty-state-illustration" viewBox="0 0 24 24" aria-hidden="true"><use href="#ilustrasi-kosong"/></svg>
+            <p style="font-weight:600;">Tidak ada transaksi pada filter ini (0 baris)</p>
+            <p style="font-size:0.875rem; color:var(--text-sec); margin-top:0.25rem;">Silakan pilih bulan lain atau ubah kata kunci.</p>
+          </div>
+        `;
+      }
+
+      const cardsHtml = slice.map((r, i) => {
+        const isKupon = r.method === 'KUPON';
+        const displayAmt = isKupon ? 'Rp 0 (KUPON)' : formatRp(r.safeAmount);
+        const delay = Math.min(i * 35, 280);
+
+        return `
+          <div class="card" style="margin-bottom:0.65rem; padding:1rem; cursor:pointer; animation:fadeSlideUp 250ms ${delay}ms var(--ease-out) both;" data-tx-detail="${r.rowNumber}">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8125rem; color:var(--text-tertiary); margin-bottom:0.25rem;">
+              <span>Baris #${r.rowNumber}</span>
+              <span>${escapeHtml(r.parsedDate.formatted)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+              <div>
+                <strong style="font-size:1.05rem; letter-spacing:-0.01em;">${escapeHtml(r.description)}</strong>
+                <div style="display:flex; gap:0.35rem; margin-top:0.35rem; flex-wrap:wrap;">
+                  <span class="tag-chip" style="font-size:0.75rem;">${escapeHtml(r.category)}</span>
+                  <span class="tag-chip" style="font-size:0.75rem;">${escapeHtml(r.method)}</span>
+                  ${r.hasAmountIssue ? '<span class="tag-chip tag-negative" style="font-size:0.75rem;">Nominal rusak</span>' : ''}
+                </div>
+              </div>
+              <div class="tx-amount" style="font-size:1.05rem; text-align:right;">${displayAmt}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div>
+          ${cardsHtml}
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;" class="no-print">
+            <button type="button" class="btn-action btn-subtle" data-page-action="${actionPrefix}-prev" ${safePage <= 1 ? 'disabled' : ''}>
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-chevron-kiri"/></svg>
+              <span>Sebelumnya</span>
+            </button>
+            <span style="font-size:0.875rem; color:var(--text-sec);">
+              Halaman <strong>${safePage}</strong> dari <strong>${totalPages}</strong> (${rows.length} transaksi)
+            </span>
+            <button type="button" class="btn-action btn-subtle" data-page-action="${actionPrefix}-next" ${safePage >= totalPages ? 'disabled' : ''}>
+              <span>Berikutnya</span>
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-chevron-kanan"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       RENDERER PER LAYAR UTAMA
+       ========================================================================== */
+
+    function renderBerandaScreen() {
+      const monthRows = filterByMonth(cachedInspection.validDateRows, state.selectedMonth);
+      const metrics = calculateMetrics(monthRows);
+      const curMonthObj = MONTHS_AVAILABLE.find(m => m.key === state.selectedMonth) || MONTHS_AVAILABLE[5];
+
+      return `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem;">
+            <div>
+              <h1 style="font-size:1.65rem; font-weight:700; letter-spacing:-0.03em;">Kas Carwash</h1>
+              <p style="font-size:0.9375rem; color:var(--text-sec);">${curMonthObj.label}</p>
+            </div>
+            <button type="button" class="btn-action btn-brand no-print" data-goto="catat">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-catat"/></svg>
+              <span>Catat transaksi</span>
+            </button>
+          </div>
+
+          ${renderPillsMonthScroller(state.selectedMonth)}
+          ${renderQualityWarning()}
+          ${renderStandardSummaryHero(metrics)}
+          ${renderComparisonBarChart()}
+        </div>
+      `;
+    }
+
+    function renderRekapScreen() {
+      const monthRows = filterByMonth(cachedInspection.validDateRows, state.selectedMonth);
+      const metrics = calculateMetrics(monthRows);
+      const curMonthObj = MONTHS_AVAILABLE.find(m => m.key === state.selectedMonth) || MONTHS_AVAILABLE[5];
+
+      let subViewHtml = '';
+      if (state.rekapTab === 'ringkasan') {
+        subViewHtml = renderStandardSummaryHero(metrics);
+      } else if (state.rekapTab === 'pemasukan') {
+        const catCards = INCOME_CATEGORIES.map(cat => {
+          const item = metrics.incomeByCategory[cat];
+          return `
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="font-size:1.05rem; font-weight:600;">${cat}</h3>
+                <span class="tag-chip">${item.count} transaksi</span>
+              </div>
+              <div class="num-medium" style="margin:0.5rem 0;">${formatRp(item.uangMasuk)}</div>
+              <div style="font-size:0.875rem; color:var(--text-sec); display:flex; flex-direction:column; gap:0.25rem;">
+                <div>CASH: <strong>${formatRp(item.cash)}</strong> • QRIS: <strong>${formatRp(item.qris)}</strong></div>
+                <div>Kupon: ${item.kuponCount} baris • Belum dibayar: ${item.belumDibayarCount} baris</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        subViewHtml = `
+          <div class="card card-hero">
+            <div class="card-label">Total Uang Masuk (${curMonthObj.label})</div>
+            <div class="num-hero">${formatRp(metrics.uangMasuk)}</div>
+            <div class="notice-non-laba">Selisih kas operasional bukan laba</div>
+          </div>
+          <div class="grid-duo">${catCards}</div>
+        `;
+      } else if (state.rekapTab === 'pengeluaran') {
+        const expCards = EXPENSE_CATEGORIES.map(cat => {
+          const item = metrics.expenseByCategory[cat];
+          const descItems = Object.entries(item.byDescription).map(([d, o]) => `
+            <div style="display:flex; justify-content:space-between; font-size:0.875rem; padding:0.2rem 0;">
+              <span>${escapeHtml(d)} (${o.count}x)</span>
+              <span class="tx-amount">${formatRp(o.total)}</span>
+            </div>
+          `).join('');
+
+          return `
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="font-size:1.05rem; font-weight:600;">${cat}</h3>
+                <span class="tag-chip">${item.count} pengeluaran</span>
+              </div>
+              <div class="num-medium" style="margin:0.4rem 0;">${formatRp(item.total)}</div>
+              <div style="border-top:1px solid var(--border-thin); padding-top:0.4rem; margin-top:0.4rem;">
+                ${descItems || '<span style="font-size:0.8125rem; color:var(--text-sec);">Tidak ada rincian</span>'}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        subViewHtml = `
+          <div class="card card-hero">
+            <div class="card-label">Total Uang Keluar (${curMonthObj.label})</div>
+            <div class="num-hero">${formatRp(metrics.uangKeluar)}</div>
+            <div class="notice-non-laba">Selisih kas operasional bukan laba</div>
+          </div>
+          <div class="grid-duo">${expCards}</div>
+        `;
+      } else if (state.rekapTab === 'kasbon') {
+        const kasbonItems = metrics.kasbonRows.map(r => `
+          <div style="display:flex; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid var(--border-thin);">
+            <div>
+              <strong>${escapeHtml(r.description)}</strong>
+              <div style="font-size:0.8125rem; color:var(--text-sec);">${r.parsedDate.formatted} • Baris #${r.rowNumber}</div>
+            </div>
+            <div class="tx-amount" style="font-size:1.05rem;">${formatRp(r.safeAmount)}</div>
+          </div>
+        `).join('');
+
+        subViewHtml = `
+          <div class="card card-hero">
+            <div class="card-label">Ringkasan Kasbon (${curMonthObj.label})</div>
+            <div class="num-hero">${formatRp(metrics.kasbonTotal)}</div>
+            <p style="font-size:0.875rem; color:var(--text-sec);">Total ${metrics.kasbonCount} baris kasbon</p>
+            <p style="font-size:0.8125rem; color:var(--text-sec); margin-top:0.25rem;">Dicatat terpisah, tidak masuk uang masuk maupun uang keluar</p>
+            <div class="notice-non-laba">Selisih kas operasional bukan laba</div>
+          </div>
+          <div class="card">
+            ${kasbonItems || '<p style="color:var(--text-sec);">Tidak ada kasbon pada bulan ini.</p>'}
+          </div>
+        `;
+      } else if (state.rekapTab === 'semua') {
+        subViewHtml = `
+          <div class="card">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.75rem;">Semua Baris Transaksi (${curMonthObj.label})</h3>
+            ${renderTransactionListCards(monthRows, state.rekapPage, 'rekap')}
+            <div class="notice-non-laba">Selisih kas operasional bukan laba</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div>
+          <div style="margin-bottom:0.75rem;">
+            <h1 class="section-title-with-icon" style="font-size:1.65rem; font-weight:700; letter-spacing:-0.03em;">
+              <span class="icon-box-32-rekap" aria-hidden="true">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-lembar"/></svg>
+              </span>
+              <span>Rekap Bulanan</span>
+            </h1>
+            <p style="font-size:0.9375rem; color:var(--text-sec);">${curMonthObj.label}</p>
+          </div>
+
+          ${renderPillsMonthScroller(state.selectedMonth)}
+          ${renderQualityWarning()}
+
+          <!-- 5 Segmented Tab Rekap -->
+          <div class="segmented-control no-print" role="tablist" aria-label="Kategori Rekap">
+            <button type="button" class="segmented-btn" role="tab" data-rekap-tab="ringkasan" aria-selected="${state.rekapTab === 'ringkasan'}">Ringkasan</button>
+            <button type="button" class="segmented-btn" role="tab" data-rekap-tab="pemasukan" aria-selected="${state.rekapTab === 'pemasukan'}">Pemasukan</button>
+            <button type="button" class="segmented-btn" role="tab" data-rekap-tab="pengeluaran" aria-selected="${state.rekapTab === 'pengeluaran'}">Pengeluaran</button>
+            <button type="button" class="segmented-btn" role="tab" data-rekap-tab="kasbon" aria-selected="${state.rekapTab === 'kasbon'}">Kasbon</button>
+            <button type="button" class="segmented-btn" role="tab" data-rekap-tab="semua" aria-selected="${state.rekapTab === 'semua'}">Semua</button>
+          </div>
+
+          ${subViewHtml}
+        </div>
+      `;
+    }
+
+    function renderCatatScreen() {
+      const parsedDate = parseDateDDMMYYYY(state.formDate) || parseDateDDMMYYYY(getTodayWIB());
+      const dayName = parsedDate ? parsedDate.dayName : 'MINGGU';
+
+      // Layar Konfirmasi Sebelum Kirim
+      if (state.formStep === 'confirm') {
+        const normalized = state.formRows.map((r, idx) => {
+          const amt = r.method === 'KUPON' ? 0 : parseFlexibleRupiahInput(r.amountRaw);
+          return {
+            txNumber: idx + 1,
+            description: r.description.trim().toUpperCase(),
+            category: r.category,
+            amount: amt,
+            safeAmount: amt,
+            method: r.method
+          };
+        });
+
+        const confirmMetrics = calculateMetrics(normalized);
+        const legacyPreview = buildLegacyFormatPreview(state.formDate, normalized);
+
+        const itemsSummary = normalized.map(item => `
+          <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border-thin);">
+            <div>
+              <strong>${item.txNumber}. ${escapeHtml(item.description)}</strong>
+              <div style="font-size:0.8125rem; color:var(--text-sec);">${item.category} • ${item.method}</div>
+            </div>
+            <div class="tx-amount">${formatRp(item.amount)}</div>
+          </div>
+        `).join('');
+
+        return `
+          <div>
+            <div style="margin-bottom:1rem;">
+              <h1 class="section-title-with-icon" style="font-size:1.65rem; font-weight:700;">
+                <span class="icon-circle-32-catat" aria-hidden="true">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-catat"/></svg>
+                </span>
+                <span>Konfirmasi Pengajuan</span>
+              </h1>
+              <p style="font-size:0.9375rem; color:var(--text-sec);">${dayName}, ${state.formDate} (${normalized.length} transaksi)</p>
+            </div>
+
+            ${renderStandardSummaryHero(confirmMetrics)}
+
+            <div class="card">
+              <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:0.5rem;">Daftar Transaksi</h3>
+              ${itemsSummary}
+            </div>
+
+            <div class="card">
+              <h3 style="font-size:1rem; font-weight:600; margin-bottom:0.5rem;">Format Teks Backend</h3>
+              <pre style="background:var(--bg-card-subtle); padding:0.75rem; border-radius:var(--radius-control); font-size:0.8125rem; white-space:pre-wrap; font-family:monospace;">${escapeHtml(legacyPreview)}</pre>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; justify-content:flex-end; flex-wrap:wrap; margin-top:1.25rem;">
+              <button type="button" class="btn-action btn-subtle" id="btn-confirm-batal" ${state.formSubmitting ? 'disabled' : ''}>
+                Batal (Kosongkan)
+              </button>
+              <button type="button" class="btn-action btn-subtle" id="btn-confirm-ubah" ${state.formSubmitting ? 'disabled' : ''}>
+                Ubah (Koreksi)
+              </button>
+              <button type="button" class="btn-action btn-brand" id="btn-confirm-simpan" ${state.formSubmitting ? 'disabled' : ''}>
+                ${state.formSubmitting ? '<span class="spinner-ring"></span> Menyimpan...' : 'Simpan (Setuju)'}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Layar Input Baris Transaksi
+      const rowsHtml = state.formRows.map((row, idx) => {
+        const num = idx + 1;
+        const validMethods = VALID_METHODS_BY_CATEGORY[row.category] || ['CASH'];
+        const isKupon = row.method === 'KUPON';
+
+        // Deteksi error khusus baris ini
+        const rowErrPrefix = `Baris #${num}:`;
+        const rowErrors = state.formErrors.filter(e => e.startsWith(rowErrPrefix));
+
+        return `
+          <div class="form-row-card" data-row-id="${row.id}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:0.9375rem;">Transaksi #${num}</strong>
+              ${state.formRows.length > 1 ? `
+                <button type="button" style="color:var(--negative); font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.25rem;" data-remove-row="${row.id}">
+                  <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-hapus"/></svg>
+                  <span>Hapus</span>
+                </button>
+              ` : ''}
+            </div>
+
+            <div class="form-field-grid">
+              <div class="input-wrapper">
+                <label class="field-label" for="desc-${row.id}">Deskripsi (Tanpa koma)</label>
+                <input
+                  type="text"
+                  id="desc-${row.id}"
+                  class="field-input input-row-desc ${rowErrors.some(e => e.includes('Deskripsi')) ? 'has-error' : ''}"
+                  data-row-id="${row.id}"
+                  placeholder="Contoh: INNOVA atau TOKEN LISTRIK"
+                  value="${escapeHtml(row.description)}"
+                />
+              </div>
+
+              <div class="input-wrapper">
+                <label class="field-label" for="cat-${row.id}">Kategori</label>
+                <select id="cat-${row.id}" class="field-input input-row-cat" data-row-id="${row.id}">
+                  ${ALL_CATEGORIES.map(c => `<option value="${c}" ${row.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="input-wrapper">
+                <label class="field-label" for="method-${row.id}">Metode</label>
+                <select id="method-${row.id}" class="field-input input-row-method" data-row-id="${row.id}">
+                  ${validMethods.map(m => `<option value="${m}" ${row.method === m ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="input-wrapper">
+                <label class="field-label" for="amt-${row.id}">Nominal (Rp)</label>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  id="amt-${row.id}"
+                  class="field-input input-row-amt ${rowErrors.some(e => e.includes('Nominal') || e.includes('KUPON')) ? 'has-error' : ''}"
+                  data-row-id="${row.id}"
+                  placeholder="Contoh: 50000"
+                  value="${isKupon ? 'Rp 0' : escapeHtml(row.amountFormatted || row.amountRaw)}"
+                  ${isKupon ? 'readonly' : ''}
+                />
+              </div>
+            </div>
+
+            ${rowErrors.length > 0 ? `
+              <div class="row-inline-error">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-peringatan"/></svg>
+                <span>${escapeHtml(rowErrors[0].replace(rowErrPrefix, '').trim())}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div>
+          <div style="margin-bottom:1rem;">
+            <h1 class="section-title-with-icon" style="font-size:1.65rem; font-weight:700;">
+              <span class="icon-circle-32-catat" aria-hidden="true">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-catat"/></svg>
+              </span>
+              <span>Catat Transaksi Harian</span>
+            </h1>
+            <p style="font-size:0.9375rem; color:var(--text-sec);">Satu pengajuan per tanggal (maksimal 30 transaksi)</p>
+          </div>
+
+          ${state.formErrors.length > 0 ? `
+            <div class="card" style="background:var(--negative-bg); border-color:var(--negative);">
+              <div class="card-label" style="color:var(--negative);">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-peringatan"/></svg>
+                <span>Periksa kembali ${state.formErrors.length} isian berikut:</span>
+              </div>
+              <ul style="padding-left:1.25rem; font-size:0.875rem; margin-top:0.4rem; color:var(--negative);">
+                ${state.formErrors.map(e => `<li>${escapeHtml(e)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          <div class="card">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div class="input-wrapper">
+                <label class="field-label" for="form-date-input">Tanggal Transaksi (WIB)</label>
+                <input type="date" id="form-date-input" class="field-input" value="${convertDDMMYYYYToISO(state.formDate)}" />
+              </div>
+              <div class="input-wrapper">
+                <label class="field-label" for="form-day-readonly">Hari</label>
+                <input type="text" id="form-day-readonly" class="field-input" value="${dayName} (${state.formDate})" readonly />
+              </div>
+            </div>
+          </div>
+
+          <div id="form-items-container">${rowsHtml}</div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
+            <button type="button" class="btn-action btn-subtle" id="btn-add-form-row" ${state.formRows.length >= 30 ? 'disabled' : ''}>
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-catat"/></svg>
+              <span>Tambah Baris (${state.formRows.length}/30)</span>
+            </button>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn-action btn-danger" id="btn-reset-form-all">Kosongkan</button>
+              <button type="button" class="btn-action btn-brand" id="btn-verify-form">Periksa (${state.formRows.length})</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCariScreen() {
+      const allValid = cachedInspection.validDateRows;
+      let results = allValid;
+
+      if (state.searchStart || state.searchEnd) {
+        results = filterByDateRange(results, state.searchStart, state.searchEnd);
+      }
+
+      const kw = state.searchKeyword.trim().toUpperCase();
+      if (kw.length > 0 && !state.searchError) {
+        results = results.filter(r => {
+          return (
+            r.parsedDate.formatted.toUpperCase().includes(kw) ||
+            String(r.description).toUpperCase().includes(kw) ||
+            String(r.category).toUpperCase().includes(kw) ||
+            String(r.method).toUpperCase().includes(kw)
+          );
+        });
+      } else if (state.searchError) {
+        results = [];
+      }
+
+      const fullMetrics = calculateMetrics(results);
+
+      return `
+        <div>
+          <div style="margin-bottom:1rem;">
+            <h1 style="font-size:1.65rem; font-weight:700;">Cari Transaksi</h1>
+            <p style="font-size:0.9375rem; color:var(--text-sec);">Cari deskripsi, kategori, metode, atau tanggal</p>
+          </div>
+
+          <div class="card no-print">
+            <form id="search-action-form" novalidate>
+              <div class="input-wrapper">
+                <label class="field-label" for="search-input-field">Kata Kunci (Maks 32 karakter)</label>
+                <input
+                  type="text"
+                  id="search-input-field"
+                  class="field-input"
+                  placeholder="Contoh: INNOVA, QRIS, TOKEN LISTRIK"
+                  value="${escapeHtml(state.searchKeyword)}"
+                />
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;">
+                <div class="input-wrapper">
+                  <label class="field-label" for="search-start-picker">Dari Tanggal (Opsional)</label>
+                  <input type="date" id="search-start-picker" class="field-input" value="${convertDDMMYYYYToISO(state.searchStart)}" />
+                </div>
+                <div class="input-wrapper">
+                  <label class="field-label" for="search-end-picker">Sampai Tanggal (Opsional)</label>
+                  <input type="date" id="search-end-picker" class="field-input" value="${convertDDMMYYYYToISO(state.searchEnd)}" />
+                </div>
+              </div>
+
+              <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.75rem;">
+                <button type="button" id="btn-reset-search" class="btn-action btn-subtle">Reset</button>
+                <button type="submit" class="btn-action btn-brand">Terapkan</button>
+              </div>
+            </form>
+          </div>
+
+          ${state.searchError ? `
+            <div class="card" style="background:var(--negative-bg); border-color:var(--negative);">
+              <p style="color:var(--negative); font-size:0.875rem;">${escapeHtml(state.searchError)}</p>
+            </div>
+          ` : ''}
+
+          <div style="margin-top:1.25rem;">
+            <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:0.75rem;">Hasil Pencarian (${results.length} baris)</h2>
+            ${renderTransactionListCards(results, state.searchPage, 'cari')}
+          </div>
+
+          ${results.length > 0 ? `
+            <div style="margin-top:2rem;">
+              <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:0.75rem;">Ringkasan Hasil Temuan</h2>
+              ${renderStandardSummaryHero(fullMetrics)}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderDeveloperScreen() {
+      const actualHour = getCurrentWIBHour();
+      let isWithinHours = actualHour >= 6 && actualHour < 21;
+      if (state.devSimulateHourMode === 'inside') isWithinHours = true;
+      if (state.devSimulateHourMode === 'outside') isWithinHours = false;
+
+      return `
+        <div>
+          <div style="margin-bottom:1rem;">
+            <h1 style="font-size:1.65rem; font-weight:700;">Hubungi Developer</h1>
+            <p style="font-size:0.9375rem; color:var(--text-sec);">Jam layanan: 06.00 - 21.00 WIB</p>
+          </div>
+
+          ${state.devError ? `
+            <div class="card" style="background:var(--negative-bg); border-color:var(--negative);">
+              <p style="color:var(--negative); font-size:0.875rem;">${escapeHtml(state.devError)}</p>
+            </div>
+          ` : ''}
+
+          ${state.devReply ? `
+            <div class="card" style="background:var(--positive-bg); border-color:var(--positive);">
+              <div class="card-label" style="color:var(--positive);">Status Respon Pengiriman</div>
+              <p style="font-size:1.05rem; font-weight:600; margin-top:0.25rem;">"${escapeHtml(state.devReply)}"</p>
+            </div>
+          ` : ''}
+
+          <div class="card">
+            <form id="form-dev-support" novalidate>
+              <div class="input-wrapper">
+                <label class="field-label" for="dev-urgency-select">Tingkat Urgensi</label>
+                <select id="dev-urgency-select" class="field-input">
+                  <option value="Biasa" ${state.devUrgency === 'Biasa' ? 'selected' : ''}>Biasa</option>
+                  <option value="Sangat Penting" ${state.devUrgency === 'Sangat Penting' ? 'selected' : ''}>Sangat Penting</option>
+                </select>
+              </div>
+
+              <div class="input-wrapper" style="margin-top:0.75rem;">
+                <label class="field-label" for="dev-msg-text">Pesan / Kendala</label>
+                <textarea id="dev-msg-text" rows="4" class="field-input" placeholder="Tuliskan kendala Anda secara ringkas...">${escapeHtml(state.devMessage)}</textarea>
+              </div>
+
+              <div class="card" style="background:var(--bg-card-subtle); padding:0.75rem; margin-top:0.85rem;">
+                <label class="field-label" for="dev-hour-override">Simulasi Jam Kerja Demo (${isWithinHours ? 'Dalam Jam Layanan' : 'Luar Jam Layanan'})</label>
+                <select id="dev-hour-override" class="field-input" style="margin-top:0.25rem;">
+                  <option value="auto" ${state.devSimulateHourMode === 'auto' ? 'selected' : ''}>Otomatis (Ikuti Jam WIB Perangkat)</option>
+                  <option value="inside" ${state.devSimulateHourMode === 'inside' ? 'selected' : ''}>Simulasi Siang (06.00 - 21.00 WIB)</option>
+                  <option value="outside" ${state.devSimulateHourMode === 'outside' ? 'selected' : ''}>Simulasi Malam (Di Luar Jam Layanan)</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn-action btn-brand" style="width:100%; margin-top:0.85rem;">Kirim Pesan Bantuan</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       RENDERER VIEW UTAMA (VIEW TRANSITIONS API SUPPORT)
+       ========================================================================== */
+    function renderAppView(shouldAnimate = false) {
+      const root = document.getElementById('app-content-root');
+      if (!root) return;
+
+      const updateContent = () => {
+        // Tampilkan State Error / Loading jika aktif
+        if (state.isLoading) {
+          root.innerHTML = `
+            <div style="padding:2rem 0;">
+              <div class="skeleton-box" style="height:32px; width:220px; margin-bottom:1rem;"></div>
+              <div class="skeleton-box" style="height:180px; width:100%; margin-bottom:1rem;"></div>
+              <div class="grid-duo">
+                <div class="skeleton-box" style="height:120px;"></div>
+                <div class="skeleton-box" style="height:120px;"></div>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        if (state.apiError) {
+          root.innerHTML = `
+            <div class="card" style="background:var(--negative-bg); border-color:var(--negative); text-align:center; padding:2rem 1.5rem;">
+              <svg class="icon icon-lg" style="color:var(--negative); margin-bottom:0.5rem;" aria-hidden="true"><use href="#icon-peringatan"/></svg>
+              <h2 style="font-size:1.25rem; font-weight:700; color:var(--negative);">Terjadi Kendala Koneksi</h2>
+              <p style="font-size:0.9375rem; margin:0.5rem 0 1rem;">${escapeHtml(state.apiError)}</p>
+              <button type="button" class="btn-action btn-brand" onclick="loadData()">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-muat-ulang"/></svg>
+                <span>Coba lagi</span>
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        switch (state.screen) {
+          case 'beranda': root.innerHTML = renderBerandaScreen(); break;
+          case 'rekap': root.innerHTML = renderRekapScreen(); break;
+          case 'catat': root.innerHTML = renderCatatScreen(); break;
+          case 'cari': root.innerHTML = renderCariScreen(); break;
+          case 'developer': root.innerHTML = renderDeveloperScreen(); break;
+          default: root.innerHTML = renderBerandaScreen(); break;
+        }
+
+        // Update indikator aktif navigasi
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+          if (btn.getAttribute('data-nav') === state.screen) {
+            btn.setAttribute('aria-current', 'page');
+          } else {
+            btn.removeAttribute('aria-current');
+          }
+        });
+
+        if (shouldAnimate) {
+          runCountUpAnimations();
+        }
+      };
+
+      if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.startViewTransition(() => updateContent());
+      } else {
+        updateContent();
+      }
+    }
+
+    /* ==========================================================================
+       BOTTOM SHEET LAINNYA & DETAIL TRANSAKSI
+       ========================================================================== */
+    const sheetDialog = document.getElementById('sheet-dialog');
+    const sheetTitle = document.getElementById('sheet-title');
+    const sheetBody = document.getElementById('sheet-body-content');
+
+    function openSheetWithContent(title, htmlContent) {
+      if (!sheetDialog) return;
+      sheetTitle.textContent = title;
+      sheetBody.innerHTML = htmlContent;
+      sheetDialog.showModal();
+    }
+
+    function closeSheet() {
+      if (sheetDialog && sheetDialog.open) {
+        sheetDialog.close();
+      }
+    }
+
+    function showMoreMenuSheet() {
+      const menuHtml = `
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <button type="button" class="btn-action btn-subtle" style="justify-content:flex-start;" data-nav="developer">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-developer"/></svg>
+            <span>Hubungi Developer</span>
+          </button>
+          <div style="border-top:1px solid var(--border-thin); margin:0.4rem 0;"></div>
+          <div style="font-size:0.8125rem; color:var(--text-sec); padding:0 0.5rem;">
+            Dashboard Keuangan Carwash v2.0 • Standar Apple Motion
+          </div>
+        </div>
+      `;
+      openSheetWithContent('Menu Tambahan', menuHtml);
+    }
+
+    function showTxDetailSheet(rowNumber) {
+      const row = cachedInspection.validDateRows.find(r => r.rowNumber === rowNumber);
+      if (!row) return;
+
+      const detailHtml = `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div style="font-size:1.35rem; font-weight:700;">${escapeHtml(row.description)}</div>
+          <div style="display:flex; gap:0.4rem;">
+            <span class="tag-chip">${escapeHtml(row.category)}</span>
+            <span class="tag-chip">${escapeHtml(row.method)}</span>
+          </div>
+          <div style="font-size:1.75rem; font-weight:700; color:var(--accent); margin:0.35rem 0;" class="tx-amount">
+            ${row.method === 'KUPON' ? 'Rp 0 (KUPON)' : formatRp(row.safeAmount)}
+          </div>
+          <div style="font-size:0.875rem; color:var(--text-sec); border-top:1px solid var(--border-thin); padding-top:0.75rem;">
+            <div>Tanggal Transaksi: <strong>${row.parsedDate.formatted} (${row.parsedDate.dayName})</strong></div>
+            <div>Baris Sumber Sheet: <strong>#${row.rowNumber}</strong></div>
+          </div>
+        </div>
+      `;
+      openSheetWithContent(`Detail Transaksi #${row.rowNumber}`, detailHtml);
+    }
+
+    /* ==========================================================================
+       EVENT LISTENERS TERPUSAT (CLICK, INPUT, CHANGE, SUBMIT)
+       ========================================================================== */
+    function attachEventListeners() {
+      // Klik Navigasi & Action
+      document.addEventListener('click', async (e) => {
+        const navBtn = e.target.closest('[data-nav]');
+        if (navBtn) {
+          state.screen = navBtn.getAttribute('data-nav');
+          closeSheet();
+          renderAppView(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        const gotoBtn = e.target.closest('[data-goto]');
+        if (gotoBtn) {
+          state.screen = gotoBtn.getAttribute('data-goto');
+          renderAppView(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        if (e.target.closest('#btn-open-more')) {
+          showMoreMenuSheet();
+          return;
+        }
+
+        if (e.target.closest('#btn-close-sheet')) {
+          closeSheet();
+          return;
+        }
+
+        if (e.target.closest('#btn-force-reload')) {
+          await loadData();
+          showToast('Data berhasil dimuat ulang');
+          return;
+        }
+
+        // Pemilih Bulan Pill
+        const pillBtn = e.target.closest('[data-pick-month]');
+        if (pillBtn) {
+          state.selectedMonth = pillBtn.getAttribute('data-pick-month');
+          state.rekapPage = 1;
+          renderAppView(true);
+          return;
+        }
+
+        // Ketuk Batang Grafik untuk memilih bulan
+        const barGroup = e.target.closest('[data-select-month]');
+        if (barGroup) {
+          state.selectedMonth = barGroup.getAttribute('data-select-month');
+          state.rekapPage = 1;
+          renderAppView(true);
+          return;
+        }
+
+        // Sub Tab Rekap
+        const rkTab = e.target.closest('[data-rekap-tab]');
+        if (rkTab) {
+          state.rekapTab = rkTab.getAttribute('data-rekap-tab');
+          state.rekapPage = 1;
+          renderAppView(false);
+          return;
+        }
+
+        // Paginasi
+        const pgBtn = e.target.closest('[data-page-action]');
+        if (pgBtn) {
+          const act = pgBtn.getAttribute('data-page-action');
+          if (act === 'rekap-prev') state.rekapPage = Math.max(1, state.rekapPage - 1);
+          if (act === 'rekap-next') state.rekapPage += 1;
+          if (act === 'cari-prev') state.searchPage = Math.max(1, state.searchPage - 1);
+          if (act === 'cari-next') state.searchPage += 1;
+          renderAppView(false);
+          return;
+        }
+
+        // Buka Detail Transaksi
+        const txCard = e.target.closest('[data-tx-detail]');
+        if (txCard) {
+          const rowNum = Number(txCard.getAttribute('data-tx-detail'));
+          showTxDetailSheet(rowNum);
+          return;
+        }
+
+        // Form Catat: Tambah Baris
+        if (e.target.closest('#btn-add-form-row')) {
+          if (state.formRows.length < 30) {
+            state.formRows.push({
+              id: state.formNextId++,
+              description: '',
+              category: 'CARWASH MEDIUM',
+              amountRaw: '',
+              amountFormatted: '',
+              method: 'CASH'
+            });
+            renderAppView(false);
+          }
+          return;
+        }
+
+        // Form Catat: Hapus Baris
+        const remBtn = e.target.closest('[data-remove-row]');
+        if (remBtn) {
+          const id = Number(remBtn.getAttribute('data-remove-row'));
+          if (state.formRows.length > 1) {
+            state.formRows = state.formRows.filter(r => r.id !== id);
+            renderAppView(false);
+          }
+          return;
+        }
+
+        // Form Catat: Reset Form
+        if (e.target.closest('#btn-reset-form-all') || e.target.closest('#btn-confirm-batal')) {
+          state.formRows = [{ id: state.formNextId++, description: '', category: 'CARWASH MEDIUM', amountRaw: '', amountFormatted: '', method: 'CASH' }];
+          state.formErrors = [];
+          state.formStep = 'input';
+          renderAppView(false);
+          return;
+        }
+
+        // Form Catat: Periksa Form
+        if (e.target.closest('#btn-verify-form')) {
+          state.formErrors = validateCatatForm();
+          if (state.formErrors.length === 0) {
+            state.formStep = 'confirm';
+          }
+          renderAppView(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        // Form Catat: Ubah
+        if (e.target.closest('#btn-confirm-ubah')) {
+          state.formStep = 'input';
+          renderAppView(false);
+          return;
+        }
+
+        // Form Catat: Simpan (Anti Dobel Kirim & Try/Catch)
+        if (e.target.closest('#btn-confirm-simpan')) {
+          if (state.formSubmitting) return;
+          state.formSubmitting = true;
+          renderAppView(false);
+
+          const items = state.formRows.map((r, idx) => ({
+            txNumber: idx + 1,
+            description: r.description.trim().toUpperCase(),
+            category: r.category,
+            amount: r.method === 'KUPON' ? 0 : parseFlexibleRupiahInput(r.amountRaw),
+            method: r.method
+          }));
+
+          const parsed = parseDateDDMMYYYY(state.formDate) || parseDateDDMMYYYY(getTodayWIB());
+          const payload = {
+            date: parsed.formatted,
+            dayName: parsed.dayName,
+            legacyText: buildLegacyFormatPreview(parsed.formatted, items),
+            items
+          };
+
+          try {
+            await api.submitBatch(payload);
+            try {
+              await loadData();
+            } catch (refreshErr) {
+              showToast('Tersimpan, tetapi laporan belum diperbarui. Tekan Muat ulang.');
+            }
+
+            if (MONTHS_AVAILABLE.some(m => m.key === parsed.keyMMYYYY)) {
+              state.selectedMonth = parsed.keyMMYYYY;
+            }
+
+            state.formRows = [{ id: state.formNextId++, description: '', category: 'CARWASH MEDIUM', amountRaw: '', amountFormatted: '', method: 'CASH' }];
+            state.formStep = 'input';
+            state.formErrors = [];
+            showToast(`Berhasil menyimpan ${items.length} transaksi`);
+          } catch (submitErr) {
+            alert(`Gagal menyimpan transaksi (${submitErr.message}). Jangan menekan tombol berulang kali. Silakan hubungi developer.`);
+          } finally {
+            state.formSubmitting = false;
+            renderAppView(true);
+          }
+          return;
+        }
+
+        // Reset Cari
+        if (e.target.closest('#btn-reset-search')) {
+          state.searchKeyword = '';
+          state.searchStart = '';
+          state.searchEnd = '';
+          state.searchError = '';
+          state.searchPage = 1;
+          renderAppView(false);
+          return;
+        }
+      });
+
+      // Perubahan Pilihan Form & Input
+      document.addEventListener('change', (e) => {
+        const t = e.target;
+
+        if (t.id === 'form-date-input') {
+          const c = convertISOToDDMMYYYY(t.value);
+          if (c) {
+            state.formDate = c;
+            renderAppView(false);
+          }
+          return;
+        }
+
+        if (t.classList.contains('input-row-cat')) {
+          const id = Number(t.getAttribute('data-row-id'));
+          const row = state.formRows.find(r => r.id === id);
+          if (row) {
+            row.category = t.value;
+            const allowed = VALID_METHODS_BY_CATEGORY[row.category] || ['CASH'];
+            if (!allowed.includes(row.method)) {
+              row.method = allowed[0];
+            }
+            if (row.method === 'KUPON') {
+              row.amountRaw = '0';
+              row.amountFormatted = 'Rp 0';
+            }
+            renderAppView(false);
+          }
+          return;
+        }
+
+        if (t.classList.contains('input-row-method')) {
+          const id = Number(t.getAttribute('data-row-id'));
+          const row = state.formRows.find(r => r.id === id);
+          if (row) {
+            row.method = t.value;
+            if (row.method === 'KUPON') {
+              row.amountRaw = '0';
+              row.amountFormatted = 'Rp 0';
+            }
+            renderAppView(false);
+          }
+          return;
+        }
+
+        if (t.id === 'dev-urgency-select') {
+          state.devUrgency = t.value;
+          return;
+        }
+
+        if (t.id === 'dev-hour-override') {
+          state.devSimulateHourMode = t.value;
+          renderAppView(false);
+          return;
+        }
+      });
+
+      // Sinkronisasi Ketikan Input
+      document.addEventListener('input', (e) => {
+        const t = e.target;
+
+        if (t.classList.contains('input-row-desc')) {
+          const id = Number(t.getAttribute('data-row-id'));
+          const row = state.formRows.find(r => r.id === id);
+          if (row) row.description = t.value;
+          return;
+        }
+
+        if (t.classList.contains('input-row-amt')) {
+          const id = Number(t.getAttribute('data-row-id'));
+          const row = state.formRows.find(r => r.id === id);
+          if (row && row.method !== 'KUPON') {
+            row.amountRaw = t.value;
+            row.amountFormatted = '';
+          }
+          return;
+        }
+
+        if (t.id === 'dev-msg-text') {
+          state.devMessage = t.value;
+          return;
+        }
+      });
+
+      // Format Rp Saat Selesai Input
+      document.addEventListener('focusout', (e) => {
+        const t = e.target;
+        if (t.classList.contains('input-row-amt')) {
+          const id = Number(t.getAttribute('data-row-id'));
+          const row = state.formRows.find(r => r.id === id);
+          if (row && row.method !== 'KUPON') {
+            const p = parseFlexibleRupiahInput(row.amountRaw);
+            if (!Number.isNaN(p) && p >= 0) {
+              row.amountRaw = String(p);
+              row.amountFormatted = formatRp(p);
+              t.value = row.amountFormatted;
+            }
+          }
+        }
+      });
+
+      // Form Submit (Cari & Hubungi Developer)
+      document.addEventListener('submit', (e) => {
+        if (e.target.id === 'search-action-form') {
+          e.preventDefault();
+          const kwEl = document.getElementById('search-input-field');
+          const sEl = document.getElementById('search-start-picker');
+          const eEl = document.getElementById('search-end-picker');
+
+          state.searchKeyword = kwEl ? kwEl.value : '';
+          state.searchStart = sEl && sEl.value ? convertISOToDDMMYYYY(sEl.value) : '';
+          state.searchEnd = eEl && eEl.value ? convertISOToDDMMYYYY(eEl.value) : '';
+          state.searchPage = 1;
+
+          if (state.searchKeyword.length > 32) {
+            state.searchError = `Kata kunci terlalu panjang (${state.searchKeyword.length} karakter). Maksimal 32 karakter.`;
+          } else if (state.searchStart && state.searchEnd) {
+            const sp = parseDateDDMMYYYY(state.searchStart);
+            const ep = parseDateDDMMYYYY(state.searchEnd);
+            if (sp && ep && sp.timestamp > ep.timestamp) {
+              state.searchError = 'Tanggal awal tidak boleh melebihi tanggal akhir pencarian.';
+            } else {
+              state.searchError = '';
+            }
+          } else {
+            state.searchError = '';
+          }
+
+          renderAppView(false);
+          return;
+        }
+
+        if (e.target.id === 'form-dev-support') {
+          e.preventDefault();
+          const msg = (state.devMessage || '').trim();
+          if (!msg) {
+            state.devError = 'Pesan kendala tidak boleh kosong. Mohon jelaskan masalah yang dihadapi.';
+            state.devReply = '';
+            renderAppView(false);
+            return;
+          }
+
+          state.devError = '';
+          const actualHour = getCurrentWIBHour();
+          let inHours = actualHour >= 6 && actualHour < 21;
+          if (state.devSimulateHourMode === 'inside') inHours = true;
+          if (state.devSimulateHourMode === 'outside') inHours = false;
+
+          if (inHours) {
+            state.devReply = 'Developer akan segera mengecek atau menghubungi Anda';
+          } else if (state.devUrgency === 'Biasa') {
+            state.devReply = 'Pesan akan dibalas keesokan harinya';
+          } else {
+            state.devReply = 'Akan ditindaklanjuti secepatnya';
+          }
+
+          state.devMessage = '';
+          renderAppView(false);
+          showToast('Pesan terkirim ke developer');
+          return;
+        }
+      });
+    }
+
+    // Inisialisasi saat berkas dimuat
+    window.addEventListener('DOMContentLoaded', async () => {
+      attachEventListeners();
+      await loadData();
+    });
+  </script>
+</body>
+</html>
